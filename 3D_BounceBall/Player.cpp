@@ -1,0 +1,99 @@
+#include "Player.h"
+
+void PLAYER::update(float deltaTime) {
+	translation_ += velocity_ * deltaTime;
+	velocity_.y -= 9.8f * deltaTime;  // 중력
+}
+
+void PLAYER::move(const glm::vec3& forward, const glm::vec3& right, int direction, float speed) {
+	glm::vec3 movement(0.0f);
+	// 카메라 정면 방향 = 정면
+
+	switch (direction) {
+	case 0: // 전방 (W)
+		movement = forward * speed;
+		break;
+	case 1: // 좌측 (A)
+		movement = -right * speed;
+		break;
+	case 2: // 후방 (S)
+		movement = -forward * speed;
+		break;
+	case 3: // 우측 (D)
+		movement = right * speed;
+		break;
+	}
+
+	// 수평 이동만 (y축 제외)
+	velocity_.x += movement.x;
+	velocity_.z += movement.z;
+	velocity_.x = std::min(1.0f, velocity_.x);
+	velocity_.z = std::min(1.0f, velocity_.z);
+}
+
+void PLAYER::onCollision(ParentModel* other) {
+	CollisionType type = other->getCollisionType();
+
+	switch (type) {
+	case CollisionType::NORMAL_BLOCK:
+		handleNormalBlockCollision(other);
+		break;
+	case CollisionType::BOUNCE_BLOCK:
+		handleBounceBlockCollision(other);
+		break;
+	case CollisionType::BREAKABLE_BLOCK:
+		handleBreakableBlockCollision(other);
+		break;
+	case CollisionType::SPIKE_BLOCK:
+		handleSpikeBlockCollision(other);
+		break;
+	}
+}
+
+void PLAYER::handleNormalBlockCollision(ParentModel* block) {
+	glm::vec3 blockPos = block->getPosition();
+	glm::vec3 blockScale = block->getScale();
+	glm::vec3 playerPos = getPosition();
+
+	// AABB의 최소/최대 점
+	glm::vec3 blockMin = blockPos - blockScale * 0.5f;
+	glm::vec3 blockMax = blockPos + blockScale * 0.5f;
+
+	// 가장 가까운 점 찾기
+	glm::vec3 closestPoint = glm::clamp(playerPos, blockMin, blockMax);
+	glm::vec3 diff = playerPos - closestPoint;
+
+	// 충돌 법선 방향 계산
+	if (glm::length(diff) > 0.001f) {
+		glm::vec3 normal = glm::normalize(diff);
+
+		// 법선 방향으로 속도 반사
+		if (abs(normal.y) > 0.5f) {
+			velocity_.y = -velocity_.y * 0.5f;  // Y축
+
+			// 블럭 위에 올려놓기
+			if (normal.y > 0) {
+				translation_.y = blockMax.y + radius_;
+			}
+		}
+		else if (abs(normal.x) > abs(normal.z)) {
+			velocity_.x = -velocity_.x * 0.5f;  // X축
+		}
+		else {
+			velocity_.z = -velocity_.z * 0.5f;  // Z축
+		}
+	}
+}
+
+void PLAYER::handleBounceBlockCollision(ParentModel* block) {
+	velocity_.y = abs(velocity_.y) * 1.0f;
+}
+
+void PLAYER::handleBreakableBlockCollision(ParentModel* block) {
+	handleNormalBlockCollision(block);
+}
+
+void PLAYER::handleSpikeBlockCollision(ParentModel* block) {
+	reset();
+	velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+}

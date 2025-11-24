@@ -22,6 +22,27 @@
     <Filter Include="소스 파일\Obj">
       <UniqueIdentifier>{9be1c028-35df-464e-a03e-1da94079b893}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Model">
+      <UniqueIdentifier>{fac607ba-0ad8-4370-9c2a-ea5c33817f59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Model\Player">
+      <UniqueIdentifier>{3ff3f89d-c761-44b2-ab81-28f52a1423da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Model\Parents">
+      <UniqueIdentifier>{d4df568f-5a78-40c6-ab61-83e077848d1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Model\Block">
+      <UniqueIdentifier>{a0c08ec0-2b48-4e3f-ba8b-cec6ef56fd19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GameWorld">
+      <UniqueIdentifier>{7cab73b6-d026-463b-9655-41ab4ecb59fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Key">
+      <UniqueIdentifier>{9215d6fc-1e4d-445d-89b3-47c40e6c4eed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Camera">
+      <UniqueIdentifier>{cd117161-2533-4b75-af75-02b86c147d88}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -36,6 +57,24 @@
     <ClCompile Include="ObjRead.cpp">
       <Filter>소스 파일\Obj</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>소스 파일\Model\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="ParentModel.cpp">
+      <Filter>소스 파일\Model\Parents</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>소스 파일\Model\Block</Filter>
+    </ClCompile>
+    <ClCompile Include="GameWorld.cpp">
+      <Filter>소스 파일\GameWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="InputHandler.cpp">
+      <Filter>소스 파일\Key</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일\Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axis.h">
@@ -49,6 +88,27 @@
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>소스 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>소스 파일\Model\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers.h">
+      <Filter>소스 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="ParentModel.h">
+      <Filter>소스 파일\Model\Parents</Filter>
+    </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>소스 파일\Model\Block</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWorld.h">
+      <Filter>소스 파일\GameWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHandler.h">
+      <Filter>소스 파일\Key</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>소스 파일\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
