@@ -69,7 +69,7 @@ void PLAYER::handleNormalBlockCollision(ParentModel* block) {
 
 		// 법선 방향으로 속도 반사
 		if (abs(normal.y) > 0.5f) {
-			velocity_.y = -velocity_.y * 0.5f;  // Y축
+			velocity_.y = -velocity_.y * 0.8f;  // Y축
 
 			// 블럭 위에 올려놓기
 			if (normal.y > 0) {

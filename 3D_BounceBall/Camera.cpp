@@ -3,7 +3,7 @@
 Camera::Camera()
 	: position_(7.0f, 7.0f, 7.0f)
 	, target_(0.0f, 0.0f, 0.0f)
-	, yaw_(0.0f)
+	, yaw_(glm::radians(45.0f))
 	, pitch_(glm::radians(45.0f))
 {
 }

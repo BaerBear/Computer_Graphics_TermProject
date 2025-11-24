@@ -75,6 +75,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>소스 파일\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="OutputHandler.cpp">
+      <Filter>소스 파일\Key</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axis.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>소스 파일\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputHandler.h">
+      <Filter>소스 파일\Key</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

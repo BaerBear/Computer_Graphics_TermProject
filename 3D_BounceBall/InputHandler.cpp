@@ -43,16 +43,13 @@ void InputHandler::handleKeyboard(unsigned char key, int x, int y)
 		key != 'q' && key != 'Q')) {
 		return;
 	}
-
-	// 키 타입별로 처리
+	
 	handleRenderingKeys(key);
 	handleLightingKeys(key);
 	handleGameKeys(key);
 	handlePlayerMovement(key);
 
-	// 종료 키
 	if (key == 'q' || key == 'Q') {
-		std::cout << "Exiting game..." << std::endl;
 		exit(0);
 	}
 }

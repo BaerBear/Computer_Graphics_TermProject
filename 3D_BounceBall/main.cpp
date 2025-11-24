@@ -5,6 +5,7 @@
 #include "ObjModel.h"
 #include "GameWorld.h"
 #include "InputHandler.h"
+#include "OutputHandler.h"
 #include "Camera.h"
 
 std::mt19937 rd(std::random_device{}());
@@ -17,6 +18,7 @@ std::uniform_real_distribution<float> Fspeed(0.01f, 0.07f);
 // === 게임 객체 ===
 GameWorld* gameWorld = nullptr;
 InputHandler* inputHandler = nullptr;
+OutputHandler* outputHandler = nullptr;
 Camera* camera = nullptr;
 
 // === 게임 시간 관리 ===
@@ -43,7 +45,8 @@ void make_fragmentShaders();
 GLuint make_shaderProgram();
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
-GLvoid KeyBoard(unsigned char key, int x, int y);
+GLvoid KeyBoardDown(unsigned char key, int x, int y);
+GLvoid KeyBoardUp(unsigned char key, int x, int y);
 GLvoid Idle();
 void init();
 
@@ -127,6 +130,12 @@ void main(int argc, char** argv)
 	inputHandler->setLightingSettings(&turnOnLight, &lightIntensity);
 	inputHandler->setPlayerMoveSpeed(gameWorld->getPlayer()->getSpeed());
 
+	// OutputHandler 생성 및 설정
+	outputHandler = new OutputHandler();
+	outputHandler->setGameWorld(gameWorld);
+	outputHandler->setCamera(camera);  // 카메라 설정
+	outputHandler->setPlayerMoveSpeed(gameWorld->getPlayer()->getSpeed());
+
 	std::cout << "\n=== Controls ===" << std::endl;
 	std::cout << "W/A/S/D: Move player" << std::endl;
 	std::cout << "Space: Jump" << std::endl;
@@ -142,7 +151,8 @@ void main(int argc, char** argv)
 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
-	glutKeyboardFunc(KeyBoard);
+	glutKeyboardFunc(KeyBoardDown);
+	glutKeyboardUpFunc(KeyBoardUp);
 	glutIdleFunc(Idle);
 
 	// 종료 시 정리
@@ -322,10 +332,18 @@ GLvoid Reshape(int w, int h)
 }
 
 // 키보드 콜백 - InputHandler로 위임
-GLvoid KeyBoard(unsigned char key, int x, int y)
+GLvoid KeyBoardDown(unsigned char key, int x, int y)
 {
 	if (inputHandler) {
 		inputHandler->handleKeyboard(key, x, y);
+	}
+	glutPostRedisplay();
+}
+
+GLvoid KeyBoardUp(unsigned char key, int x, int y)
+{
+	if (outputHandler) {
+		outputHandler->handleKeyboard(key, x, y);
 	}
 	glutPostRedisplay();
 }
@@ -345,6 +363,12 @@ GLvoid Idle()
 
 		if (gameWorld) {
 			gameWorld->update(deltaTime);
+		}
+
+		if (camera) {
+			cameraPos = camera->getPosition();
+			cameraYaw = camera->getYaw();
+			cameraPitch = camera->getPitch();
 		}
 
 		glutPostRedisplay();

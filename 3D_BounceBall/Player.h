@@ -19,8 +19,13 @@ public:
 		return speed_;
 	}
 
+	void setVelocity(const glm::vec3& vel) { // 加档 技磐
+		velocity_ = vel;
+	}
+
 	void update(float deltaTime);
 	void move(const glm::vec3& forward, const glm::vec3& right, int direction, float speed);
+
 
 	// 面倒 贸府
 	void onCollision(ParentModel* other) override;
