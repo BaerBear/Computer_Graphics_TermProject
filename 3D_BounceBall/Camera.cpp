@@ -1,10 +1,11 @@
 #include "Camera.h"
 
 Camera::Camera()
-	: position_(7.0f, 7.0f, 7.0f)
+	: position_(5.0f, 5.0f, 5.0f)
 	, target_(0.0f, 0.0f, 0.0f)
 	, yaw_(glm::radians(45.0f))
 	, pitch_(glm::radians(45.0f))
+	, roll_(glm::radians(45.0f))
 {
 }
 
@@ -43,7 +44,7 @@ void Camera::orbitAroundTarget(float distance, float yawAngle, float pitchAngle)
 	pitch_ = glm::clamp(pitchAngle, glm::radians(-89.0f), glm::radians(89.0f));
 
 	// 구면 좌표계를 이용한 카메라 위치 계산
-	position_.x = target_.x + distance * cos(pitch_) * cos(yaw_);
+	/*position_.x = target_.x + distance * cos(pitch_) * cos(yaw_);
 	position_.y = target_.y + distance * sin(pitch_);
-	position_.z = target_.z + distance * cos(pitch_) * sin(yaw_);
+	position_.z = target_.z + distance * cos(pitch_) * sin(yaw_);*/
 }

@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\Axis">
-      <UniqueIdentifier>{d87d26d2-d73a-434e-9ff6-881cabcae693}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\glsl">
-      <UniqueIdentifier>{3886c33b-3dc3-44b1-abd2-fbeb58be7ea5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Obj">
       <UniqueIdentifier>{9be1c028-35df-464e-a03e-1da94079b893}</UniqueIdentifier>
     </Filter>
@@ -43,13 +37,19 @@
     <Filter Include="소스 파일\Camera">
       <UniqueIdentifier>{cd117161-2533-4b75-af75-02b86c147d88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Axis">
+      <UniqueIdentifier>{d87d26d2-d73a-434e-9ff6-881cabcae693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\glsl">
+      <UniqueIdentifier>{3886c33b-3dc3-44b1-abd2-fbeb58be7ea5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Axis.cpp">
-      <Filter>소스 파일\Axis</Filter>
+      <Filter>헤더 파일\Axis</Filter>
     </ClCompile>
     <ClCompile Include="ObjModel.cpp">
       <Filter>소스 파일\Obj</Filter>
@@ -81,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axis.h">
-      <Filter>소스 파일\Axis</Filter>
+      <Filter>헤더 파일\Axis</Filter>
     </ClInclude>
     <ClInclude Include="ObjModel.h">
       <Filter>소스 파일\Obj</Filter>
@@ -119,10 +119,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Phong_fragment.glsl">
-      <Filter>소스 파일\glsl</Filter>
+      <Filter>헤더 파일\glsl</Filter>
     </None>
     <None Include="Phong_vertex.glsl">
-      <Filter>소스 파일\glsl</Filter>
+      <Filter>헤더 파일\glsl</Filter>
     </None>
   </ItemGroup>
 </Project>

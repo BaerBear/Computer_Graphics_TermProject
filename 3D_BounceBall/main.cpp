@@ -54,10 +54,6 @@ GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
 
-glm::vec3 modelPos = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraPos = glm::vec3(7.0f, 7.0f, 7.0f);
-GLfloat cameraAngle = glm::atan(glm::radians(45.0f));
-
 // 조명 설정
 bool turnOnLight = true;
 glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 1.0f);
@@ -116,9 +112,8 @@ void main(int argc, char** argv)
 	// Camera 생성
 	camera = new Camera();
 	camera->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera->setPosition(cameraPos);
-	float dis = glm::length(cameraPos - camera->getTarget());
-	camera->orbitAroundTarget(dis, cameraYaw, cameraPitch);
+	float dis = glm::length(camera->getPosition() - camera->getTarget());
+	camera->orbitAroundTarget(dis, camera->getYaw(), camera->getPitch());
 
 	// GameWorld 생성
 	gameWorld = new GameWorld(shaderProgramID);
@@ -257,9 +252,6 @@ void init()
 	glUniform3f(lightColorLocation, lightColor.r, lightColor.g, lightColor.b);
 	unsigned int objColorLocation = glGetUniformLocation(shaderProgramID, "objectColor");
 	glUniform3f(objColorLocation, 1.0, 0.5, 0.3);
-	unsigned int viewPosLocation = glGetUniformLocation(shaderProgramID, "viewPos");
-	std::cout << "Camera Position: (" << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << ")\n";
-	glUniform3f(viewPosLocation, cameraPos.x, cameraPos.y, cameraPos.z);
 
 	lightOrbitRadius = sqrt(lightPos.x * lightPos.x + lightPos.z * lightPos.z);
 	lightOrbitAngle = glm::degrees(atan2(lightPos.z, lightPos.x));
@@ -295,7 +287,7 @@ GLvoid drawScene()
 
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
 	glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
-	glUniform3fv(viewPosLoc, 1, glm::value_ptr(cameraPos));
+	glUniform3fv(viewPosLoc, 1, glm::value_ptr(camera->getPosition()));
 
 	// View 및 Projection 매트릭스
 	GLint viewLoc = glGetUniformLocation(shaderProgramID, "view");
@@ -304,13 +296,13 @@ GLvoid drawScene()
 	if (gameWorld && camera) {
 		glm::vec3 playerPos = gameWorld->getPlayer()->getTranslation();
 		camera->setTarget(playerPos);
-		float dis = glm::length(cameraPos - camera->getTarget());
+		float dis = glm::length(camera->getPosition() - camera->getTarget());
 		camera->orbitAroundTarget(dis, cameraYaw, cameraPitch);
 	}
 
 	// View 매트릭스 가져오기
 	glm::mat4 view = camera->getViewMatrix();
-	glm::mat4 proj = glm::perspective(cameraAngle, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 proj = glm::perspective(camera->getRoll(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
@@ -366,12 +358,6 @@ GLvoid Idle()
 
 		if (gameWorld) {
 			gameWorld->update(deltaTime);
-		}
-
-		if (camera) {
-			cameraPos = camera->getPosition();
-			cameraYaw = camera->getYaw();
-			cameraPitch = camera->getPitch();
 		}
 
 		glutPostRedisplay();
