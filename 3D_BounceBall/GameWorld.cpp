@@ -18,9 +18,12 @@ void GameWorld::initialize()
 	std::cout << "Initializing GameWorld..." << std::endl;
 
 	// 플레이어 초기화
-	player_.init("obj/sphere.obj", shaderProgramID_);
-	player_.setTranslation(glm::vec3(0.0f, 5.0f, 0.0f));
-	player_.radius_ = 0.5f;
+	player_.init("obj/sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
+	player_.setTranslation(glm::vec3(0.0f, 1.5f, 0.0f));
+	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
+	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
+	player_.radius_ = 0.5f * player_.getScaleFactor();
+	
 
 	// 블럭들 생성
 	createFloorBlocks();
@@ -182,7 +185,7 @@ void GameWorld::createFloorBlocks()
 	for (int i = -5; i <= 5; i++) {
 		for (int j = -5; j <= 5; j++) {
 			BLOCK* block = new BLOCK();
-			block->init("obj/cube.obj", shaderProgramID_);
+			block->init("obj/cube.obj", shaderProgramID_, 1.0f, 1.0f ,1.0f);
 			block->setTranslation(glm::vec3(i * 2.0f, -1.0f, j * 2.0f));
 			block->setSelfScale(glm::vec3(0.9f, 0.2f, 0.9f));
 			blocks_.push_back(block);
@@ -195,7 +198,7 @@ void GameWorld::createBounceBlocks()
 	// 튕기는 블럭 생성
 	for (int i = 0; i < 5; i++) {
 		BOUNCE_BLOCK* bounceBlock = new BOUNCE_BLOCK();
-		bounceBlock->init("obj/cube.obj", shaderProgramID_);
+		bounceBlock->init("obj/cube.obj", shaderProgramID_, 0.0f, 0.0f, 1.0f);
 		bounceBlock->setTranslation(glm::vec3((i - 2) * 3.0f, 0.0f, 0.0f));
 		bounceBlock->setSelfScale(glm::vec3(0.8f, 0.3f, 0.8f));
 		bounceBlocks_.push_back(bounceBlock);
@@ -207,7 +210,7 @@ void GameWorld::createBreakableBlocks()
 	// 부서지는 블럭 생성
 	for (int i = 0; i < 3; i++) {
 		BREAKABLE_BLOCK* breakableBlock = new BREAKABLE_BLOCK();
-		breakableBlock->init("obj/cube.obj", shaderProgramID_);
+		breakableBlock->init("obj/cube.obj", shaderProgramID_, 1.0f, 0.0f, 1.0f);
 		breakableBlock->setTranslation(glm::vec3(i * 2.0f, 1.0f, 3.0f));
 		breakableBlock->setSelfScale(glm::vec3(0.7f, 0.7f, 0.7f));
 		breakableBlocks_.push_back(breakableBlock);
@@ -219,7 +222,7 @@ void GameWorld::createSpikeBlocks()
 	// 가시 블럭 생성
 	for (int i = 0; i < 2; i++) {
 		SPIKE_BLOCK* spikeBlock = new SPIKE_BLOCK();
-		spikeBlock->init("obj/cube.obj", shaderProgramID_); // spike.obj가 없으면 obj/cube.obj 사용
+		spikeBlock->init("obj/cube.obj", shaderProgramID_, 1.0f, 0.0f, 0.0f); // spike.obj가 없으면 obj/cube.obj 사용
 		spikeBlock->setTranslation(glm::vec3(-3.0f + i * 6.0f, 2.0f, -3.0f));
 		spikeBlock->setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
 		spikeBlocks_.push_back(spikeBlock);

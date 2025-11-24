@@ -1,7 +1,9 @@
 #include "Player.h"
 
 void PLAYER::update(float deltaTime) {
-	translation_ += velocity_ * deltaTime;
+	translation_.x += velocity_.x * deltaTime;
+	translation_.y += velocity_.y * deltaTime / 2;
+	translation_.z += velocity_.z * deltaTime;
 	velocity_.y -= 9.8f * deltaTime;  // ม฿ทย
 }
 

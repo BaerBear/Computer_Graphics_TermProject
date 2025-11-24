@@ -116,7 +116,9 @@ void main(int argc, char** argv)
 	// Camera 생성
 	camera = new Camera();
 	camera->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera->orbitAroundTarget(10.0f, glm::radians(45.0f), glm::radians(45.0f));
+	camera->setPosition(cameraPos);
+	float dis = glm::length(cameraPos - camera->getTarget());
+	camera->orbitAroundTarget(dis, cameraYaw, cameraPitch);
 
 	// GameWorld 생성
 	gameWorld = new GameWorld(shaderProgramID);
@@ -256,6 +258,7 @@ void init()
 	unsigned int objColorLocation = glGetUniformLocation(shaderProgramID, "objectColor");
 	glUniform3f(objColorLocation, 1.0, 0.5, 0.3);
 	unsigned int viewPosLocation = glGetUniformLocation(shaderProgramID, "viewPos");
+	std::cout << "Camera Position: (" << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << ")\n";
 	glUniform3f(viewPosLocation, cameraPos.x, cameraPos.y, cameraPos.z);
 
 	lightOrbitRadius = sqrt(lightPos.x * lightPos.x + lightPos.z * lightPos.z);
@@ -301,7 +304,8 @@ GLvoid drawScene()
 	if (gameWorld && camera) {
 		glm::vec3 playerPos = gameWorld->getPlayer()->getTranslation();
 		camera->setTarget(playerPos);
-		camera->orbitAroundTarget(10.0f, cameraYaw, cameraPitch);
+		float dis = glm::length(cameraPos - camera->getTarget());
+		camera->orbitAroundTarget(dis, cameraYaw, cameraPitch);
 	}
 
 	// View 매트릭스 가져오기
@@ -331,7 +335,6 @@ GLvoid Reshape(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-// 키보드 콜백 - InputHandler로 위임
 GLvoid KeyBoardDown(unsigned char key, int x, int y)
 {
 	if (inputHandler) {

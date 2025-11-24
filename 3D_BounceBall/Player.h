@@ -19,6 +19,10 @@ public:
 		return speed_;
 	}
 
+	float getScaleFactor() const { // 스케일 팩터 게터
+		return scaleFactor_;
+	}
+
 	void setVelocity(const glm::vec3& vel) { // 속도 세터
 		velocity_ = vel;
 	}
@@ -36,6 +40,7 @@ public:
 
 private:
 	float speed_ = 0.2f;
+	float scaleFactor_ = 0.5f;
 
 	void handleNormalBlockCollision(ParentModel* block);
 	void handleBounceBlockCollision(ParentModel* block);

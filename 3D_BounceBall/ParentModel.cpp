@@ -25,9 +25,9 @@ glm::mat4 ParentModel::createModelMatrix() {
 	return modelMatrix;
 }
 
-void ParentModel::init(const char* filename, GLuint shaderProgramID) {
+void ParentModel::init(const char* filename, GLuint shaderProgramID, float r, float g, float b) {
 	m_.init(shaderProgramID);
-	m_.loadFromFile(filename);
+	m_.loadFromFile(filename, r, g, b);
 }
 
 void ParentModel::draw() {

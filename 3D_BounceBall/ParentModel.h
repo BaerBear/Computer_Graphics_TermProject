@@ -21,7 +21,7 @@ class ParentModel
 {
 public:
 	glm::mat4 createModelMatrix();
-	void init(const char* filename, GLuint shaderProgramID);
+	void init(const char* filename, GLuint shaderProgramID,  float r, float g, float b);
 	void draw();
 	void reset();
 
