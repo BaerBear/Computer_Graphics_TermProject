@@ -91,3 +91,54 @@
 문의사항
 
 - 특정 파일의 내부 구현을 상세히 문서화하기 원하면, 어떤 파일을 우선적으로 설명할지 알려주십시오.
+
+====================================================================================================================================================
+
+클래스 상속(상속성) 기본 개념 및 ParentModel/자식 클래스 사용 안내
+
+- 상속의 기본
+  - 상속(Inheritance)은 기존 클래스(부모/기반 클래스, Parent/Superclass)의 인터페이스와 동작을 재사용하고 확장하기 위한 객체지향 기법입니다.
+  - 자식 클래스(파생 클래스, Child/Subclass)는 부모 클래스의 멤버(필드/메서드)를 물려받고, 필요하면 재정의(override)하거나 새로운 기능을 추가할 수 있습니다.
+  - 접근 지정자(public/protected/private)를 통해 상속된 멤버에 대한 접근 범위를 제어합니다. 보통 인터페이스를 유지하려면 `public` 상속을 사용합니다.
+
+- 가상 함수와 다형성
+  - 부모 클래스의 메서드를 `virtual`로 선언하면 자식 클래스에서 재정의할 수 있고, 부모 타입 포인터로 호출할 때 자식 구현이 실행됩니다(런타임 다형성).
+  - 베이스 클래스에는 반드시 `virtual` 소멸자(`virtual ~ParentModel() = default;`)를 선언하여 자식 객체가 올바르게 소멸되도록 해야 합니다.
+  - C++11 이후에는 오버라이드하는 메서드에 `override` 키워드를 붙여 컴파일러가 시그니처를 검사하도록 하는 것이 안전합니다.
+
+- 객체 슬라이싱(object slicing) 방지
+  - 객체를 값으로 저장하면(기본 타입처럼) 자식 클래스의 추가 멤버가 잘려나갑니다. 따라서 부모형 포인터(`ParentModel*`)나 스마트포인터(`std::unique_ptr<ParentModel>` / `std::shared_ptr<ParentModel>`)로 관리해야 합니다.
+
+- ParentModel (프로젝트 관점의 권장 설계)
+  - 목적: 모든 게임 오브젝트(모델)가 공통으로 가져야 할 인터페이스를 정의합니다.
+  - 권장 멤버(예)
+    - 가상 소멸자: `virtual ~ParentModel() = default;`
+    - 렌더/업데이트 인터페이스: `virtual void initialize();`, `virtual void update(float dt);`, `virtual void draw();`
+    - 위치/변환 접근자: `virtual glm::vec3 getTranslation() const;`, `virtual void setTranslation(const glm::vec3& pos);`
+    - 충돌/상태 인터페이스(필요시): `virtual BoundingBox getBounds() const;`
+  - 구현 팁: 기본 동작(정적 데이터 설정 등)은 ParentModel에 구현하고, 오브젝트별 고유 동작만 자식에서 재정의하세요.
+
+- 자식 클래스들(예: PlayerModel, BallModel, ObstacleModel 등)
+  - 역할: ParentModel의 공통 인터페이스를 상속받아 각 오브젝트만의 동작(물리, 입력 반응, 특수 렌더링)을 구현합니다.
+  - 예시 구현
+    - `class PlayerModel : public ParentModel { public: void update(float dt) override; void draw() override; /* 점프/이동 상태 등 */ }`
+    - `class BallModel : public ParentModel { public: void update(float dt) override; void draw() override; /* 반사/충돌 처리 */ }`
+  - 자식 클래스는 추가 상태(속도, 가속도, 스코어 등)를 멤버 변수로 갖고, `update`에서 물리/행동을 갱신합니다.
+
+- GameWorld와의 결합(사용법)
+  - `GameWorld`는 `std::vector<std::unique_ptr<ParentModel>> objects;` 같은 컨테이너에 부모형 스마트포인터로 모든 오브젝트를 보관합니다.
+  - 매 프레임 `for (auto& obj : objects) obj->update(deltaTime);` 및 `obj->draw();`처럼 부모 포인터를 통해 호출하면 각 자식의 재정의된 메서드가 실행됩니다.
+  - 특정 타입의 추가 기능이 필요하면 `dynamic_cast`로 안전하게 다운캐스트하거나, 컴포지션/시스템 패턴을 사용하는 것이 좋습니다.
+
+- 안전과 유지보수 권장사항
+  - 모든 가상 함수에 `override`를 사용하세요.
+  - 자원 관리는 스마트 포인터로 하고, `new/delete` 직접 관리는 피하세요.
+  - 인터페이스(ParentModel)는 가능한 작게 유지하고, 구체적 행동은 자식 클래스 또는 별도 시스템에 위임하세요.
+
+요약
+
+ParentModel(베이스 클래스)은 게임 오브젝트의 공통 인터페이스를 정의하고, 자식 클래스들은 각자의 동작을 구현합니다. 
+런타임 다형성(virtual 함수)을 사용하면 `GameWorld`처럼 오브젝트 컬렉션을 부모형 포인터로 관리하면서 각 오브젝트의 고유 동작을 자연스럽게 호출할 수 있습니다. 
+안전한 소멸과 자원 관리를 위해 `virtual` 소멸자와 스마트 포인터 사용을 권장합니다.
+
+====================================================================================================================================================
