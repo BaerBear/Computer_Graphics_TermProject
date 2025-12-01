@@ -3,6 +3,7 @@
 in vec3 FragPos;
 in vec3 Normal;
 in vec3 vertexColor;
+in vec2 TexCoord;  // 텍스처 좌표 입력
 
 out vec4 FragColor;
 
@@ -12,12 +13,16 @@ uniform vec3 viewPos;         // 카메라 위치
 uniform vec3 objectColor;     // 객체 색상
 uniform bool turnOnLight;     // 조명 ON/OFF
 uniform float lightIntensity; // 광원 세기
+uniform sampler2D texture1;  // 텍스처 샘플러 추가
+uniform bool useTexture;     // 텍스처 사용 여부
 
 void main()
-{
+{ 
+    vec3 baseColor = useTexture ? texture(texture1, TexCoord).rgb : vertexColor;
+    
     if (!turnOnLight) {
         // 조명이 꺼져있으면 색상만 출력
-        FragColor = vec4(vertexColor, 1.0);
+        FragColor = vec4(baseColor, 1.0);
         return;
     }
 
@@ -39,6 +44,6 @@ void main()
     specularLight = pow(specularLight, shininess); //--- shininess 승을 해주어 하이라이트를 만들어준다.
     vec3 specular = specularLight * lightColor; //--- 거울 반사 조명값: 거울반사값 * 조명색상값
     
-    vec3 result = (ambient + diffuse + specular) * vertexColor; //--- 최종 조명 설정된 픽셀 색상: (주변+산란반사+거울반사조명)*객체 색상
+    vec3 result = (ambient + diffuse + specular) * baseColor; //--- 최종 조명 설정된 픽셀 색상: (주변+산란반사+거울반사조명)*객체 색상
     FragColor = vec4(result, 1.0); //--- 픽셀 색을 출력
 }

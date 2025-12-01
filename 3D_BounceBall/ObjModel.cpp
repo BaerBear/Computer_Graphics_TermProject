@@ -1,4 +1,5 @@
 #include "ObjModel.h"
+#include "stb_image.h"
 #include <iostream>
 
 void OBJ_MODEL::init(GLuint shaderProgramID) {
@@ -75,10 +76,20 @@ void OBJ_MODEL::convertToVertexArray() {
         glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
 
         for (int j = 0; j < 3; ++j) {
-            unsigned int vertexIndex;
-            if (j == 0) vertexIndex = face.v1;
-            else if (j == 1) vertexIndex = face.v2;
-            else vertexIndex = face.v3;
+            unsigned int vertexIndex; // 위치 인덱스
+            unsigned int texIndex;    // 텍스처 인덱스
+            if (j == 0) {
+                vertexIndex = face.v1;
+                texIndex = face.t1;
+            }
+            else if (j == 1) {
+                vertexIndex = face.v2;
+                texIndex = face.t2;
+            }
+            else {
+                vertexIndex = face.v3;
+                texIndex = face.t3;
+            }
 
             if (vertexIndex < objModel_.vertex_count) {
                 VERTEX vertex;
@@ -104,6 +115,18 @@ void OBJ_MODEL::convertToVertexArray() {
                 vertex.ny = normal.y;
                 vertex.nz = normal.z;
 
+                // 4. 텍스처 좌표 설정
+                // 텍스처 데이터가 존재하고, 인덱스가 유효한 경우
+                if (objModel_.texCoords != nullptr && texIndex < objModel_.texCoord_count) {
+                    vertex.u = objModel_.texCoords[texIndex].u;
+                    vertex.v = objModel_.texCoords[texIndex].v;
+                }
+                else {
+                    // 텍스처 좌표가 없는 경우 기본값
+                    vertex.u = 0.0f;
+                    vertex.v = 0.0f;
+                }
+
                 vertices_.push_back(vertex);
             }
         }
@@ -126,24 +149,22 @@ void OBJ_MODEL::setupOpenGL() {
     glBindVertexArray(VAO_);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_);
 
-    glBufferData(GL_ARRAY_BUFFER,
-        vertices_.size() * sizeof(VERTEX),
-        vertices_.data(),
-        GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(VERTEX), vertices_.data(), GL_STATIC_DRAW);
 
     // 위치 (location = 0)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 
     // 색상 (location = 1)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX),
-        (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX), (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
 
     // 노멀 (location = 2)
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX),
-        (GLvoid*)(6 * sizeof(GLfloat)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX), (GLvoid*)(6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VERTEX), (GLvoid*)(9 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(3);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -163,6 +184,40 @@ void OBJ_MODEL::draw(const glm::mat4& modelMatrix) {
 
     // 렌더링
     glBindVertexArray(VAO_);
+
+    // 텍스처 바인딩
+    if (textureID_ > 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureID_);
+        glUniform1i(glGetUniformLocation(shaderProgramID_, "texture1"), 0);
+        glUniform1i(glGetUniformLocation(shaderProgramID_, "useTexture"), true);
+    }
+    else {
+        glUniform1i(glGetUniformLocation(shaderProgramID_, "useTexture"), false);
+    }
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices_.size()));
+    glBindVertexArray(0);
+}
+
+void OBJ_MODEL::draw() {
+    if (vertices_.empty()) {
+        std::cerr << "No vertices to draw!" << std::endl;
+        return;
+    }
+
+    // 렌더링
+    glBindVertexArray(VAO_);
+
+    // 텍스처 바인딩
+    if (textureID_ > 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureID_);
+        glUniform1i(glGetUniformLocation(shaderProgramID_, "texture1"), 0);
+        glUniform1i(glGetUniformLocation(shaderProgramID_, "useTexture"), true);
+    }
+    else {
+        glUniform1i(glGetUniformLocation(shaderProgramID_, "useTexture"), false);
+    }
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices_.size()));
     glBindVertexArray(0);
 }
@@ -179,6 +234,10 @@ void OBJ_MODEL::cleanup() {
         free(objModel_.vertices);
         objModel_.vertices = nullptr;
     }
+    if (objModel_.texCoords) {
+        free(objModel_.texCoords);
+        objModel_.texCoords = nullptr;
+    }
     if (objModel_.faces) {
         free(objModel_.faces);
         objModel_.faces = nullptr;
@@ -192,4 +251,51 @@ void OBJ_MODEL::cleanup() {
         glDeleteBuffers(1, &VBO_);
         VBO_ = 0;
     }
+}
+
+void OBJ_MODEL::setTextureID(GLuint id) {
+    // 외부에서 이미 생성된 텍스처 ID를 할당
+    textureID_ = id;
+}
+
+GLuint OBJ_MODEL::getTextureID() const {
+    return textureID_;
+}
+
+bool OBJ_MODEL::loadTextureFromFile(const char* filepath) {
+    int width = 0, height = 0, channels = 0;
+    // OpenGL 텍스처 좌표와 이미지 파일의 y축이 반대인 경우 flip
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
+    if (!data) {
+        std::cerr << "Failed to load texture image: " << filepath << std::endl;
+        return false;
+    }
+
+    GLenum format = GL_RGB;
+    if (channels == 1) format = GL_RED;
+    else if (channels == 3) format = GL_RGB;
+    else if (channels == 4) format = GL_RGBA;
+
+    if (textureID_ == 0) {
+        glGenTextures(1, &textureID_);
+    }
+    glBindTexture(GL_TEXTURE_2D, textureID_);
+
+    // 텍스처 파라미터 설정 (필요에 따라 조절)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // 이미지 업로드
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // 정리
+    stbi_image_free(data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    std::cout << "Texture loaded: " << filepath << " (ID=" << textureID_ << ", " << width << "x" << height << ", ch=" << channels << ")" << std::endl;
+    return true;
 }
