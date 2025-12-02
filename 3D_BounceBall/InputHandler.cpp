@@ -43,16 +43,60 @@ void InputHandler::handleKeyboard(unsigned char key, int x, int y)
 		key != 'q' && key != 'Q')) {
 		return;
 	}
-	
+
+	keysPressed_[key] = true;  // 키 누름 상태
+
 	handleRenderingKeys(key);
 	handleLightingKeys(key);
 	handleGameKeys(key);
-	handlePlayerMovement(key);
 
 	if (key == 'q' || key == 'Q') {
 		exit(0);
 	}
 }
+
+void InputHandler::handleKeyboardUp(unsigned char key, int x, int y)
+{
+	// 키 해제(up) 이벤트 처리
+	keysPressed_[key] = false;
+}
+
+void InputHandler::updateKeyStates()
+{
+	// 매 프레임 호출 - 플레이어 이동 입력 처리
+	if (!gameWorld_)
+		return;
+
+	PLAYER* player = gameWorld_->getPlayer();
+	if (!player || !camera_)
+		return;
+
+	bool isMoving = false;
+
+	// W/A/S/D 키 상태 확인
+	if (keysPressed_['w'] || keysPressed_['W']) {
+		player->move(camera_->getForward(), camera_->getRight(), 0, playerMoveSpeed_);
+		isMoving = true;
+	}
+	if (keysPressed_['a'] || keysPressed_['A']) {
+		player->move(camera_->getForward(), camera_->getRight(), 1, playerMoveSpeed_);
+		isMoving = true;
+	}
+	if (keysPressed_['s'] || keysPressed_['S']) {
+		player->move(camera_->getForward(), camera_->getRight(), 2, playerMoveSpeed_);
+		isMoving = true;
+	}
+	if (keysPressed_['d'] || keysPressed_['D']) {
+		player->move(camera_->getForward(), camera_->getRight(), 3, playerMoveSpeed_);
+		isMoving = true;
+	}
+
+	if (!isMoving) {
+		// 입력 없음 - 감속 처리
+		player->Deceleration(0.016f);
+	}
+}
+
 
 void InputHandler::handleRenderingKeys(unsigned char key)
 {
@@ -141,42 +185,6 @@ void InputHandler::handleGameKeys(unsigned char key)
 	case 'X':
 		gameWorld_->reset();
 		std::cout << "Game Reset! Score: " << gameWorld_->getScore() << std::endl;
-		break;
-	}
-}
-
-void InputHandler::handlePlayerMovement(unsigned char key)
-{
-	if (!gameWorld_)
-		return;
-
-	PLAYER* player = gameWorld_->getPlayer();
-	if (!player)
-		return;
-
-	switch (key)
-	{
-	case 'w':
-	case 'W':
-		player->move(camera_->getForward(), camera_->getRight(), 0, playerMoveSpeed_);
-		std::cout << "Move Forward" << std::endl;
-		break;
-
-	case 'a':
-	case 'A':
-		player->move(camera_->getForward(), camera_->getRight(), 1, playerMoveSpeed_);
-		std::cout << "Move Left" << std::endl;
-		break;
-	case 's':
-	case 'S':
-		player->move(camera_->getForward(), camera_->getRight(), 2, playerMoveSpeed_);
-		std::cout << "Move Forward" << std::endl;
-		break;
-
-	case 'd':
-	case 'D':
-		player->move(camera_->getForward(), camera_->getRight(), 3, playerMoveSpeed_);
-		std::cout << "Move Right" << std::endl;
 		break;
 	}
 }

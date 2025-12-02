@@ -18,6 +18,8 @@ public:
 	void setPlayerMoveSpeed(float speed) { playerMoveSpeed_ = speed; }
 
 	void handleKeyboard(unsigned char key, int x, int y);
+	void handleKeyboardUp(unsigned char key, int x, int y);
+	void updateKeyStates();
 
 private:
 	GameWorld* gameWorld_;
@@ -34,8 +36,9 @@ private:
 
 	float playerMoveSpeed_;
 
+	bool keysPressed_[256] = { false };
+
 	void handleRenderingKeys(unsigned char key);
 	void handleLightingKeys(unsigned char key);
 	void handleGameKeys(unsigned char key);
-	void handlePlayerMovement(unsigned char key);
 };

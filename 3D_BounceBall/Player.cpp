@@ -26,11 +26,36 @@ void PLAYER::move(const glm::vec3& forward, const glm::vec3& right, int directio
 		break;
 	}
 
-	// 수평 이동만 (y축 제외)
-	velocity_.x += movement.x;
-	velocity_.z += movement.z;
-	velocity_.x = std::min(1.0f, velocity_.x);
-	velocity_.z = std::min(1.0f, velocity_.z);
+	// 수평 이동
+	glm::vec3 Velocity = glm::vec3(velocity_.x, 0.0f, velocity_.z) + glm::vec3(movement.x, 0.0f, movement.z);
+
+	// 최대 속도 제한
+	float horizontalSpeed = glm::length(glm::vec2(Velocity.x, Velocity.z));
+	if (horizontalSpeed > maxSpeed_) {
+		glm::vec2 normalized = glm::normalize(glm::vec2(Velocity.x, Velocity.z));
+		Velocity.x = normalized.x * maxSpeed_;
+		Velocity.z = normalized.y * maxSpeed_;
+	}
+
+	// 가속도 적용
+	velocity_.x = glm::mix(velocity_.x, Velocity.x, acceleration_ * 0.016f);
+	velocity_.z = glm::mix(velocity_.z, Velocity.z, acceleration_ * 0.016f);
+}
+
+void PLAYER::Deceleration(float deltaTime) {
+	// 입력이 없을 때 속도 감소
+	if( glm::length(glm::vec2(velocity_.x, velocity_.z)) < 0.01f) {
+		velocity_.x = 0.0f;
+		velocity_.z = 0.0f;
+		return;
+	}
+	float horizontalSpeed = glm::length(glm::vec2(velocity_.x, velocity_.z));
+	if (horizontalSpeed > 0.01f) {
+		glm::vec2 horizontalVel(velocity_.x, velocity_.z);
+		horizontalVel = glm::normalize(horizontalVel) * std::max(0.0f, horizontalSpeed - deceleration_ * deltaTime);
+		velocity_.x = horizontalVel.x;
+		velocity_.z = horizontalVel.y;
+	}
 }
 
 void PLAYER::onCollision(ParentModel* other) {

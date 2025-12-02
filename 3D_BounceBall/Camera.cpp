@@ -54,7 +54,7 @@ glm::mat4 Camera::getViewMatrix() const
 void Camera::orbitAroundTarget(float distance, float yawAngle, float pitchAngle)
 {
 	yaw_ = yawAngle;
-	pitch_ = glm::clamp(pitchAngle, glm::radians(-30.0f), glm::radians(30.0f));
+	pitch_ = glm::clamp(pitchAngle, glm::radians(-maxPitch_), glm::radians(maxPitch_));
 	distance_ = std::min(5.0f, distance);
 
 	// 구면 좌표계를 이용한 카메라 위치 계산

@@ -6,7 +6,6 @@
 #include "ObjModel.h"
 #include "GameWorld.h"
 #include "InputHandler.h"
-#include "OutputHandler.h"
 #include "Camera.h"
 
 std::mt19937 rd(std::random_device{}());
@@ -19,7 +18,6 @@ std::uniform_real_distribution<float> Fspeed(0.01f, 0.07f);
 // === 게임 객체 ===
 GameWorld* gameWorld = nullptr;
 InputHandler* inputHandler = nullptr;
-OutputHandler* outputHandler = nullptr;
 Camera* camera = nullptr;
 
 // === 게임 시간 관리 ===
@@ -60,7 +58,7 @@ GLuint fragmentShader;
 
 // 조명 설정
 bool turnOnLight = true;
-glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 1.0f);
+glm::vec3 lightPos = glm::vec3(10.0f, 1.0f, 20.0f);
 glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 float lightIntensity = 0.5f;
 
@@ -134,12 +132,6 @@ void main(int argc, char** argv)
 	inputHandler->setRenderingSettings(&DepthTest, &CullFace, &ProjectionPerspective, &DrawSolid, &DrawWireframe);
 	inputHandler->setLightingSettings(&turnOnLight, &lightIntensity);
 	inputHandler->setPlayerMoveSpeed(gameWorld->getPlayer()->getSpeed());
-
-	// OutputHandler 생성 및 설정
-	outputHandler = new OutputHandler();
-	outputHandler->setGameWorld(gameWorld);
-	outputHandler->setCamera(camera);  // 카메라 설정
-	outputHandler->setPlayerMoveSpeed(gameWorld->getPlayer()->getSpeed());
 
 	std::cout << "\n=== Controls ===" << std::endl;
 	std::cout << "W/A/S/D: Move player" << std::endl;
@@ -352,8 +344,8 @@ GLvoid KeyBoardDown(unsigned char key, int x, int y)
 
 GLvoid KeyBoardUp(unsigned char key, int x, int y)
 {
-	if (outputHandler) {
-		outputHandler->handleKeyboard(key, x, y);
+	if (inputHandler) {
+		inputHandler->handleKeyboardUp(key, x, y);
 	}
 	glutPostRedisplay();
 }
@@ -406,6 +398,7 @@ GLvoid Idle()
 		lastFrameTime = currentTime;
 
 		if (gameWorld) {
+			inputHandler->updateKeyStates();
 			gameWorld->update(deltaTime);
 		}
 
