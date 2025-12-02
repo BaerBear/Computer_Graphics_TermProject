@@ -49,6 +49,8 @@ GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 GLvoid KeyBoardDown(unsigned char key, int x, int y);
 GLvoid KeyBoardUp(unsigned char key, int x, int y);
+GLvoid Mouse(int button, int state, int x, int y);
+GLvoid Move(int x, int y);
 GLvoid Idle();
 void init();
 
@@ -70,6 +72,7 @@ float lightOrbitSpeed = 1.0f;
 
 float cameraYaw = 0.0f;
 float cameraPitch = 0.0f;
+
 int lastMouseX = WINDOW_WIDTH / 2;
 int lastMouseY = WINDOW_HEIGHT / 2;
 bool firstMouse = true;
@@ -113,7 +116,10 @@ void main(int argc, char** argv)
 
 	// Camera 생성
 	camera = new Camera();
+	camera->setRoll(glm::radians(45.0f));
 	camera->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+	cameraYaw = camera->getYaw();
+	cameraPitch = camera->getPitch();
 	float dis = glm::length(camera->getPosition() - camera->getTarget());
 	camera->orbitAroundTarget(dis, camera->getYaw(), camera->getPitch());
 
@@ -152,6 +158,8 @@ void main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(KeyBoardDown);
 	glutKeyboardUpFunc(KeyBoardUp);
+	glutMouseFunc(Mouse);
+	glutMotionFunc(Move);
 	glutIdleFunc(Idle);
 
 	// 종료 시 정리
@@ -169,7 +177,7 @@ void main(int argc, char** argv)
 			delete camera;
 			camera = nullptr;
 		}
-	});
+		});
 
 	glutMainLoop();
 }
@@ -302,6 +310,7 @@ GLvoid drawScene()
 	if (gameWorld && camera) {
 		glm::vec3 playerPos = gameWorld->getPlayer()->getTranslation();
 		camera->setTarget(playerPos);
+		camera->setTargetScale(gameWorld->getPlayer()->getScaleFactor());
 		float dis = glm::length(camera->getPosition() - camera->getTarget());
 		camera->orbitAroundTarget(dis, cameraYaw, cameraPitch);
 	}
@@ -346,6 +355,40 @@ GLvoid KeyBoardUp(unsigned char key, int x, int y)
 	if (outputHandler) {
 		outputHandler->handleKeyboard(key, x, y);
 	}
+	glutPostRedisplay();
+}
+
+GLvoid Mouse(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON) {
+		if (state == GLUT_DOWN) {
+			leftMousePressed = true;
+			lastMouseX = x;
+			lastMouseY = y;
+		}
+		else if (state == GLUT_UP) {
+			leftMousePressed = false;
+		}
+	}
+
+	glutPostRedisplay();
+}
+
+GLvoid Move(int x, int y) {
+	if (leftMousePressed) {
+		int deltaX = x - lastMouseX;
+		int deltaY = y - lastMouseY;
+
+		lastMouseX = x;
+		lastMouseY = y;
+
+		cameraYaw += deltaX * mouseSensitivity;
+		cameraPitch -= deltaY * mouseSensitivity;
+
+		const float maxPitch = camera->getMaxPitch();
+		if (cameraPitch > maxPitch) cameraPitch = maxPitch;
+		if (cameraPitch < -maxPitch) cameraPitch = -maxPitch;
+	}
+
 	glutPostRedisplay();
 }
 
