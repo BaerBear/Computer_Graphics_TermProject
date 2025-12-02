@@ -1,5 +1,4 @@
 #include "OutputHandler.h"
-#include "OutputHandler.h"
 #include <iostream>
 
 OutputHandler::OutputHandler()
