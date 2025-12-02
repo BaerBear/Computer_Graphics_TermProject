@@ -11,6 +11,7 @@ struct VERTEX {
 	GLfloat x, y, z;
 	GLfloat r, g, b;
 	GLfloat nx, ny, nz;
+	GLfloat u, v;
 };
 
 struct FACE {

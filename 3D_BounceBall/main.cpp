@@ -54,6 +54,8 @@ GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
 
+bool useTexture = false;
+
 // 조명 설정
 bool turnOnLight = true;
 glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 1.0f);
@@ -273,6 +275,9 @@ GLvoid drawScene()
 
 	glClearColor(bgR, bgG, bgB, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	GLint useTextureLoc = glGetUniformLocation(shaderProgramID, "useTexture");
+	glUniform1i(useTextureLoc, useTexture);
 
 	// 조명 유니폼 전달
 	GLint turnOnLightLoc = glGetUniformLocation(shaderProgramID, "turnOnLight");

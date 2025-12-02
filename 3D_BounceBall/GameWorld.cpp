@@ -18,7 +18,7 @@ void GameWorld::initialize()
 	std::cout << "Initializing GameWorld..." << std::endl;
 
 	// 플레이어 초기화 (위치: 시작 지점 위)
-	player_.init("obj/sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
+	player_.init("obj/uv_sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
 	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
 	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
