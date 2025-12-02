@@ -40,7 +40,11 @@ public:
 
 private:
 	float speed_ = 0.2f;
-	float scaleFactor_ = 0.5f;
+	float scaleFactor_ = 0.5f;	// 구체 크기 조절
+	float maxSpeed_ = 2.0f;	// 최대 속도
+	float acceleration_ = 8.0f; // 가속도
+	float deceleration_ = 12.0f; // 감속도
+	glm::vec3 inputDirection_ = glm::vec3(0.0f);	// 현재 입력 방향
 
 	void handleNormalBlockCollision(ParentModel* block);
 	void handleBounceBlockCollision(ParentModel* block);
