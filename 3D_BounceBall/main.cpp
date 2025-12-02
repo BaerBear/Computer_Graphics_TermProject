@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define STB_IMAGE_IMPLEMENTATION
 #include "Headers.h"
 #include "Vertex.h"
 #include "Axis.h"
@@ -34,6 +35,7 @@ bool CullFace = false;
 bool ProjectionPerspective = true;
 bool DrawSolid = true;
 bool DrawWireframe = false;
+bool useTexture = false;
 
 float bgR = 0.f, bgG = 0.f, bgB = 0.f;
 
@@ -273,6 +275,10 @@ GLvoid drawScene()
 
 	glClearColor(bgR, bgG, bgB, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// 텍스처 유니폼 전달
+	GLint useTextureLoc = glGetUniformLocation(shaderProgramID, "useTexture");
+	glUniform1i(useTextureLoc, useTexture);
 
 	// 조명 유니폼 전달
 	GLint turnOnLightLoc = glGetUniformLocation(shaderProgramID, "turnOnLight");

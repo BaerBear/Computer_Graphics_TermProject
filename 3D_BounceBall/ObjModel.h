@@ -6,6 +6,7 @@
 #include "ObjRead.h"
 #include "Vertex.h"
 #include <vector>
+#include "stb_image.h"
 
 class OBJ_MODEL {
 public:

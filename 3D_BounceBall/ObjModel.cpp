@@ -1,5 +1,4 @@
 #include "ObjModel.h"
-#include "stb_image.h"
 #include <iostream>
 
 void OBJ_MODEL::init(GLuint shaderProgramID) {
@@ -263,7 +262,7 @@ GLuint OBJ_MODEL::getTextureID() const {
 }
 
 bool OBJ_MODEL::loadTextureFromFile(const char* filepath) {
-    int width = 0, height = 0, channels = 0;
+    int width = 0, height  = 0, channels = 0;
     // OpenGL 텍스처 좌표와 이미지 파일의 y축이 반대인 경우 flip
     stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
@@ -281,7 +280,7 @@ bool OBJ_MODEL::loadTextureFromFile(const char* filepath) {
         glGenTextures(1, &textureID_);
     }
     glBindTexture(GL_TEXTURE_2D, textureID_);
-
+    
     // 텍스처 파라미터 설정 (필요에 따라 조절)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

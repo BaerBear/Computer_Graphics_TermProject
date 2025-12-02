@@ -18,7 +18,7 @@ void GameWorld::initialize()
 	std::cout << "Initializing GameWorld..." << std::endl;
 
 	// 플레이어 초기화 (위치: 시작 지점 위)
-	player_.init("obj/sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
+	player_.init("obj/uv_sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
 	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
 	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
@@ -53,7 +53,10 @@ void GameWorld::reset()
 
 	// 플레이어 리셋
 	player_.reset();
-	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f)); // 시작 위치
+	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
+	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
+	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
+	player_.radius_ = 0.5f * player_.getScaleFactor();
 	player_.velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	createFloorBlocks();
@@ -144,7 +147,7 @@ void GameWorld::createFloorBlocks()
 		for (int z = -1; z <= 1; z++) {
 			BLOCK* block = new BOUNCE_BLOCK();
 			// 회색 바닥
-			block->init("obj/cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
+			block->init("obj/uv_cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
 			block->setTranslation(glm::vec3(x * 2.0f, -1.0f, z * 2.0f));
 			block->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 			blocks_.push_back(block);
@@ -154,7 +157,7 @@ void GameWorld::createFloorBlocks()
 	// 2. 징검다리 (Stepping Stones) - 일반 점프 구간
 	for (int i = 1; i <= 3; i++) {
 		BLOCK* block = new BOUNCE_BLOCK();
-		block->init("obj/cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
+		block->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 		// Z축으로 -4, -7, -10 만큼 떨어뜨려서 배치
 		block->setTranslation(glm::vec3(0.0f, -1.0f, -2.0f - (i * 3.0f)));
 		block->setSelfScale(glm::vec3(0.8f, 0.2f, 0.8f));
@@ -165,7 +168,7 @@ void GameWorld::createFloorBlocks()
 	// 위치: Z = -20, 높이 Y = 2.0 (위로 올라감)
 	for (int x = -1; x <= 1; x++) {
 		BLOCK* block = new BLOCK();
-		block->init("obj/cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
+		block->init("obj/uv_cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
 		block->setTranslation(glm::vec3(x * 2.0f, 2.0f, -20.0f));
 		block->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 		blocks_.push_back(block);
@@ -174,14 +177,14 @@ void GameWorld::createFloorBlocks()
 	// 4. 가시 함정 앞뒤 안전 발판
 	// 가시 전 발판
 	BLOCK* safe1 = new BLOCK();
-	safe1->init("obj/cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
+	safe1->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 	safe1->setTranslation(glm::vec3(0.0f, 2.0f, -32.0f));
 	safe1->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 	blocks_.push_back(safe1);
 
 	// 가시 후 발판
 	BLOCK* safe2 = new BLOCK();
-	safe2->init("obj/cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
+	safe2->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 	safe2->setTranslation(glm::vec3(0.0f, 2.0f, -40.0f));
 	safe2->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 	blocks_.push_back(safe2);
@@ -191,7 +194,7 @@ void GameWorld::createFloorBlocks()
 		for (int z = 0; z < 3; z++) {
 			BLOCK* block = new BLOCK();
 			// 도착 지점은 금색(노란색) 느낌
-			block->init("obj/cube.obj", shaderProgramID_, 1.0f, 0.84f, 0.0f);
+			block->init("obj/uv_cube.obj", shaderProgramID_, 1.0f, 0.84f, 0.0f);
 			block->setTranslation(glm::vec3(x * 2.0f, 2.0f, -48.0f - (z * 2.0f)));
 			block->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 			blocks_.push_back(block);
@@ -205,7 +208,7 @@ void GameWorld::createBounceBlocks()
 	// 위치: Z = -15 (낮은 곳에 배치해서 밟고 올라가게 함)
 	BOUNCE_BLOCK* bounceBlock = new BOUNCE_BLOCK();
 	// 파란색
-	bounceBlock->init("obj/cube.obj", shaderProgramID_, 0.0f, 0.5f, 1.0f);
+	bounceBlock->init("obj/uv_cube.obj", shaderProgramID_, 0.0f, 0.5f, 1.0f);
 	bounceBlock->setTranslation(glm::vec3(0.0f, -1.0f, -15.0f));
 	bounceBlock->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 	bounceBlocks_.push_back(bounceBlock);
@@ -218,7 +221,7 @@ void GameWorld::createBreakableBlocks()
 	for (int i = 0; i < 3; i++) {
 		BREAKABLE_BLOCK* block = new BREAKABLE_BLOCK();
 		// 자주색 (경고 느낌)
-		block->init("obj/cube.obj", shaderProgramID_, 1.0f, 0.0f, 1.0f);
+		block->init("obj/uv_cube.obj", shaderProgramID_, 1.0f, 0.0f, 1.0f);
 		block->setTranslation(glm::vec3(0.0f, 2.0f, -23.0f - (i * 2.5f)));
 		block->setSelfScale(glm::vec3(0.8f, 0.2f, 0.8f));
 		breakableBlocks_.push_back(block);
@@ -231,7 +234,7 @@ void GameWorld::createSpikeBlocks()
 	// 점프해서 넘어가야 함. 가시에 닿으면 죽음.
 	SPIKE_BLOCK* spike = new SPIKE_BLOCK();
 	// 빨간색
-	spike->init("obj/cube.obj", shaderProgramID_, 1.0f, 0.0f, 0.0f);
+	spike->init("obj/uv_cube.obj", shaderProgramID_, 1.0f, 0.0f, 0.0f);
 	// 발판보다 약간 낮게 배치하거나, 길게 배치해서 점프 유도
 	spike->setTranslation(glm::vec3(0.0f, 1.5f, -36.0f));
 	spike->setSelfScale(glm::vec3(0.5f, 0.5f, 2.0f)); // 길쭉한 가시밭

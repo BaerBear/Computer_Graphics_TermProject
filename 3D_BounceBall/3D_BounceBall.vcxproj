@@ -150,6 +150,7 @@
     <ClInclude Include="ObjModel.h" />
     <ClInclude Include="ObjRead.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Headers.h" />
   </ItemGroup>
