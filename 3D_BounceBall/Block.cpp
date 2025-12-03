@@ -23,3 +23,11 @@ void BREAKABLE_BLOCK::onCollision(ParentModel* other) {
 CollisionType SPIKE_BLOCK::getCollisionType() const {
 	return CollisionType::SPIKE_BLOCK;
 }
+
+CollisionType STAR::getCollisionType() const {
+	return CollisionType::STAR;  // 새로운 타입 추가 필요
+}
+
+void STAR::onCollision(ParentModel* other) {
+	isCollected_ = true;
+}

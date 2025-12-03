@@ -29,6 +29,7 @@ void GameWorld::initialize()
 	createBounceBlocks();     // 점프 구간
 	createBreakableBlocks();  // 함정 다리
 	createSpikeBlocks();      // 가시 장애물
+	createStars();            // 별 배치
 
 	std::cout << "** GameWorld initialized **" << std::endl;
 	std::cout << "Level Generated with Obstacle Course!" << std::endl;
@@ -63,6 +64,7 @@ void GameWorld::reset()
 	createBounceBlocks();
 	createBreakableBlocks();
 	createSpikeBlocks();
+	createStars();
 
 	score_ = 0;
 	gameStarted_ = true;
@@ -92,6 +94,7 @@ void GameWorld::draw()
 	for (auto block : bounceBlocks_) block->draw();
 	for (auto block : breakableBlocks_) block->draw();
 	for (auto block : spikeBlocks_) block->draw();
+	for (auto star : stars_) star->draw();
 }
 
 void GameWorld::checkCollisions()
@@ -129,6 +132,32 @@ void GameWorld::checkCollisions()
 			player_.onCollision(block); // 닿으면 사망(Reset)
 		}
 	}
+
+	// 별 충돌 체크
+	for (auto it = stars_.begin(); it != stars_.end(); ) {
+		STAR* star = *it;
+		if (player_.checkCollision(star)) {
+			player_.onCollision(star);
+			// star->onCollision(&player_); // 수집 처리
+			if (star->isCollected_) {
+				addScore(50);	// 별 획득 점수
+				delete star;
+				it = stars_.erase(it);
+				std::cout << "Star collected! Score: " << score_ << std::endl;
+				continue;
+			}
+		}
+		++it;
+	}
+}
+
+void GameWorld::createStars() {
+	// 일단은 맵 곳곳에 별 배치
+	STAR* star1 = new STAR();
+	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
+	star1->setTranslation(glm::vec3(0.0f, 1.0f, -10.0f));
+	star1->setSelfScale(glm::vec3(0.3f, 0.3f, 0.3f));
+	stars_.push_back(star1);
 }
 
 void GameWorld::addBlock(BLOCK* block) { blocks_.push_back(block); }

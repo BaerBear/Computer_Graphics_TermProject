@@ -9,7 +9,8 @@ enum class CollisionType {
 	NORMAL_BLOCK,    // 일반 블럭
 	BOUNCE_BLOCK,    // 튕기는 블럭
 	BREAKABLE_BLOCK, // 부서지는 블럭
-	SPIKE_BLOCK      // 가시 블럭
+	SPIKE_BLOCK,      // 가시 블럭
+	STAR			// 별
 };
 
 enum class Shape {

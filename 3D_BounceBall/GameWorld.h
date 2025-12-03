@@ -43,6 +43,7 @@ private:
 	std::vector<BOUNCE_BLOCK*> bounceBlocks_;
 	std::vector<BREAKABLE_BLOCK*> breakableBlocks_;
 	std::vector<SPIKE_BLOCK*> spikeBlocks_;
+	std::vector<STAR*> stars_;
 
 	bool gameStarted_;
 	int score_;
@@ -51,4 +52,5 @@ private:
 	void createBounceBlocks();
 	void createBreakableBlocks();
 	void createSpikeBlocks();
+	void createStars();
 };

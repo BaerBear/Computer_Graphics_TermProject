@@ -119,9 +119,14 @@ void PLAYER::handleBounceBlockCollision(ParentModel* block) {
 
 void PLAYER::handleBreakableBlockCollision(ParentModel* block) {
 	handleNormalBlockCollision(block);
+	velocity_.y = 10.0f; // 속도 절반으로 감소
 }
 
 void PLAYER::handleSpikeBlockCollision(ParentModel* block) {
 	reset();
 	velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+void PLAYER::handleStarCollision(ParentModel* star) {
+	// 별 획득 처리 (예: 점수 증가)
 }

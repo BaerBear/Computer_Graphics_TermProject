@@ -50,4 +50,5 @@ private:
 	void handleBounceBlockCollision(ParentModel* block);
 	void handleBreakableBlockCollision(ParentModel* block);
 	void handleSpikeBlockCollision(ParentModel* block);
+	void handleStarCollision(ParentModel* star);
 };
