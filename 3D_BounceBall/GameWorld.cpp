@@ -167,7 +167,7 @@ void GameWorld::createFloorBlocks()
 	// 3. 높은 플랫폼 (High Platform) - 바운스 블럭 착지 지점
 	// 위치: Z = -20, 높이 Y = 2.0 (위로 올라감)
 	for (int x = -1; x <= 1; x++) {
-		BLOCK* block = new BLOCK();
+		BLOCK* block = new BOUNCE_BLOCK();
 		block->init("obj/uv_cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
 		block->setTranslation(glm::vec3(x * 2.0f, 2.0f, -20.0f));
 		block->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
@@ -176,14 +176,14 @@ void GameWorld::createFloorBlocks()
 
 	// 4. 가시 함정 앞뒤 안전 발판
 	// 가시 전 발판
-	BLOCK* safe1 = new BLOCK();
+	BLOCK* safe1 = new BOUNCE_BLOCK();
 	safe1->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 	safe1->setTranslation(glm::vec3(0.0f, 2.0f, -32.0f));
 	safe1->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 	blocks_.push_back(safe1);
 
 	// 가시 후 발판
-	BLOCK* safe2 = new BLOCK();
+	BLOCK* safe2 = new BOUNCE_BLOCK();
 	safe2->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 	safe2->setTranslation(glm::vec3(0.0f, 2.0f, -40.0f));
 	safe2->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));

@@ -113,7 +113,8 @@ void PLAYER::handleNormalBlockCollision(ParentModel* block) {
 }
 
 void PLAYER::handleBounceBlockCollision(ParentModel* block) {
-	velocity_.y = abs(velocity_.y) * 1.0f;
+	// velocity_.y = abs(velocity_.y) * 1.0f;
+	velocity_.y = 10.0f; // 고정된 높이로 점프
 }
 
 void PLAYER::handleBreakableBlockCollision(ParentModel* block) {
