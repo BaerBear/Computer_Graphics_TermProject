@@ -41,11 +41,13 @@ void GameWorld::cleanup()
 	for (auto block : bounceBlocks_) delete block;
 	for (auto block : breakableBlocks_) delete block;
 	for (auto block : spikeBlocks_) delete block;
+	for (auto star : stars_) delete star;
 
 	blocks_.clear();
 	bounceBlocks_.clear();
 	breakableBlocks_.clear();
 	spikeBlocks_.clear();
+	stars_.clear();
 }
 
 void GameWorld::reset()
@@ -76,6 +78,13 @@ void GameWorld::update(float deltaTime)
 	if (!gameStarted_) return;
 
 	player_.update(deltaTime);
+
+	// 별 회전 애니메이션
+	for (auto star : stars_) {
+		glm::vec3 currentRot = star->getRotation();
+		star->setRotation(currentRot + glm::vec3(0.0f, 90.0f * deltaTime, 0.0f));
+	}
+
 	checkCollisions();
 
 	// 낙사 처리 (맵 아래로 떨어지면 리셋)
@@ -151,19 +160,11 @@ void GameWorld::checkCollisions()
 	}
 }
 
-void GameWorld::createStars() {
-	// 일단은 맵 곳곳에 별 배치
-	STAR* star1 = new STAR();
-	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
-	star1->setTranslation(glm::vec3(0.0f, 1.0f, -10.0f));
-	star1->setSelfScale(glm::vec3(0.3f, 0.3f, 0.3f));
-	stars_.push_back(star1);
-}
-
 void GameWorld::addBlock(BLOCK* block) { blocks_.push_back(block); }
 void GameWorld::addBounceBlock(BOUNCE_BLOCK* block) { bounceBlocks_.push_back(block); }
 void GameWorld::addBreakableBlock(BREAKABLE_BLOCK* block) { breakableBlocks_.push_back(block); }
 void GameWorld::addSpikeBlock(SPIKE_BLOCK* block) { spikeBlocks_.push_back(block); }
+void GameWorld::addStar(STAR* star) { stars_.push_back(star); }
 
 // ==========================================
 //              레벨 디자인 구현
@@ -268,4 +269,14 @@ void GameWorld::createSpikeBlocks()
 	spike->setTranslation(glm::vec3(0.0f, 1.5f, -36.0f));
 	spike->setSelfScale(glm::vec3(0.5f, 0.5f, 2.0f)); // 길쭉한 가시밭
 	spikeBlocks_.push_back(spike);
+}
+
+void GameWorld::createStars() {
+	// 일단은 맵 곳곳에 별 배치
+	STAR* star1 = new STAR();
+	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
+	star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+	star1->setTranslation(glm::vec3(0.0f, 1.0f, -10.0f));
+	star1->setSelfScale(glm::vec3(0.3f, 0.3f, 0.3f));
+	stars_.push_back(star1);
 }

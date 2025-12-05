@@ -28,6 +28,7 @@ public:
 	void addBounceBlock(BOUNCE_BLOCK* block);
 	void addBreakableBlock(BREAKABLE_BLOCK* block);
 	void addSpikeBlock(SPIKE_BLOCK* block);
+	void addStar(STAR* star);
 
 	// 게임 상태
 	int getScore() const { return score_; }
