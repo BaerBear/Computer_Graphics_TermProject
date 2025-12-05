@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Block.h"
 #include <vector>
+#include "PathTrace.h"
 
 class GameWorld
 {
@@ -54,4 +55,6 @@ private:
 	void createBreakableBlocks();
 	void createSpikeBlocks();
 	void createStars();
+
+	TrajectoryPredictor trajectoryPredictor_;
 };

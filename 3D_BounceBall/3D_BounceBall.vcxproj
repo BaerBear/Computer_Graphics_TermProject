@@ -140,6 +140,7 @@
     <ClCompile Include="ParentModel.cpp" />
     <ClCompile Include="ObjModel.cpp" />
     <ClCompile Include="ObjRead.cpp" />
+    <ClCompile Include="PathTrace.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="ParentModel.h" />
     <ClInclude Include="ObjModel.h" />
     <ClInclude Include="ObjRead.h" />
+    <ClInclude Include="PathTrace.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Vertex.h" />

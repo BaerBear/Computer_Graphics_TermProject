@@ -75,6 +75,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>소스 파일\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="PathTrace.cpp">
+      <Filter>소스 파일\Model\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axis.h">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>소스 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTrace.h">
+      <Filter>소스 파일\Model\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -31,6 +31,8 @@ void GameWorld::initialize()
 	createSpikeBlocks();      // 가시 장애물
 	createStars();            // 별 배치
 
+	trajectoryPredictor_.init(shaderProgramID_);
+
 	std::cout << "** GameWorld initialized **" << std::endl;
 	std::cout << "Level Generated with Obstacle Course!" << std::endl;
 }
@@ -98,6 +100,14 @@ void GameWorld::update(float deltaTime)
 void GameWorld::draw()
 {
 	player_.draw();
+
+	// 플레이어 궤적 예측 표시
+	trajectoryPredictor_.draw(
+		player_.getPosition(),  // 현재 위치
+		player_.velocity_,      // 현재 속도
+		50,                     // 점 개수 (많을수록 부드러움)
+		0.05f                   // 시간 간격 (작을수록 정밀)
+	);
 
 	for (auto block : blocks_) block->draw();
 	for (auto block : bounceBlocks_) block->draw();
