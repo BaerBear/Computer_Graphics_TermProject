@@ -1,4 +1,5 @@
 #include "PathTrace.h"
+#include "ParentModel.h"
 #include <cmath>
 
 void TrajectoryPredictor::init(GLuint shaderProgramID) {
@@ -57,36 +58,70 @@ void TrajectoryPredictor::calculateTrajectory(const glm::vec3& startPos, const g
 	}
 }
 
-glm::vec3 TrajectoryPredictor::calculateLandingPoint(const glm::vec3& startPos, const glm::vec3& velocity, float groundY) {
+bool TrajectoryPredictor::isPointOnBlock(const glm::vec3& point, ParentModel* block, float tolerance) {
+	glm::vec3 blockPos = block->getPosition();
+	glm::vec3 blockScale = block->getScale();
+
+	// 블록의 윗면 Y 좌표
+	float blockTopY = blockPos.y + blockScale.y * 0.5f;
+
+	// XZ 평면에서 블록 범위
+	float blockMinX = blockPos.x - blockScale.x * 0.5f;
+	float blockMaxX = blockPos.x + blockScale.x * 0.5f;
+	float blockMinZ = blockPos.z - blockScale.z * 0.5f;
+	float blockMaxZ = blockPos.z + blockScale.z * 0.5f;
+
+	// Y 좌표가 블록 윗면 근처이고, XZ가 블록 범위 안에 있는지 체크
+	bool yInRange = abs(point.y - blockTopY) < tolerance;
+	bool xInRange = point.x >= blockMinX && point.x <= blockMaxX;
+	bool zInRange = point.z >= blockMinZ && point.z <= blockMaxZ;
+
+	return yInRange && xInRange && zInRange;
+}
+
+bool TrajectoryPredictor::calculateLandingPointOnBlock(const glm::vec3& startPos, const glm::vec3& velocity,
+	const std::vector<ParentModel*>& blocks, glm::vec3& outLandingPoint) {
+
 	glm::vec3 pos = startPos;
 	glm::vec3 vel = velocity;
 	const float gravity = 9.8f;
-	const float timeStep = 0.01f; // 정밀한 계산을 위해 작은 값
-	const int maxSteps = 1000; // 무한 루프 방지
+	const float timeStep = 0.01f;
+	const int maxSteps = 1000;
 
-	// 땅(groundY)에 도달할 때까지 시뮬레이션
 	for (int i = 0; i < maxSteps; ++i) {
-		float nextY = pos.y + vel.y * timeStep;
+		glm::vec3 nextPos = pos;
+		nextPos.x += vel.x * timeStep;
+		nextPos.y += vel.y * timeStep;
+		nextPos.z += vel.z * timeStep;
 
-		// 땅에 도달했는지 체크
-		if (nextY <= groundY && pos.y > groundY) {
-			// 보간하여 정확한 착지 지점 계산
-			float t = (groundY - pos.y) / (nextY - pos.y);
-			glm::vec3 landingPoint = pos + vel * timeStep * t;
-			landingPoint.y = groundY; // 정확히 땅 위에 놓기
-			return landingPoint;
+		// 모든 블록을 체크하여 착지 가능한지 확인
+		for (ParentModel* block : blocks) {
+			glm::vec3 blockPos = block->getPosition();
+			glm::vec3 blockScale = block->getScale();
+			float blockTopY = blockPos.y + blockScale.y * 0.5f;
+
+			// 블록 윗면을 통과하는 순간 감지
+			if (pos.y > blockTopY && nextPos.y <= blockTopY) {
+				// 보간하여 정확한 교차점 계산
+				float t = (blockTopY - pos.y) / (nextPos.y - pos.y);
+				glm::vec3 intersectionPoint = pos + (nextPos - pos) * t;
+
+				// 이 지점이 블록 위에 있는지 체크
+				if (isPointOnBlock(intersectionPoint, block, 0.1f)) {
+					outLandingPoint = intersectionPoint;
+					outLandingPoint.y = blockTopY + 0.01f; // 약간 위로 (Z-fighting 방지)
+					return true;
+				}
+			}
 		}
 
-		pos.x += vel.x * timeStep;
-		pos.y += vel.y * timeStep;
-		pos.z += vel.z * timeStep;
+		pos = nextPos;
 		vel.y -= gravity * timeStep;
 
-		// 너무 아래로 떨어지면 중단
 		if (pos.y < -50.0f) break;
 	}
 
-	return pos; // 착지하지 못한 경우 마지막 위치 반환
+	return false; // 블록에 착지하지 못함
 }
 
 void TrajectoryPredictor::drawCircle(const glm::vec3& center, float radius, const glm::vec3& color) {
@@ -127,7 +162,9 @@ void TrajectoryPredictor::drawCircle(const glm::vec3& center, float radius, cons
 	glBindVertexArray(0);
 }
 
-void TrajectoryPredictor::draw(const glm::vec3& startPos, const glm::vec3& velocity, int numPoints, float timeStep) {
+void TrajectoryPredictor::draw(const glm::vec3& startPos, const glm::vec3& velocity,
+	const std::vector<ParentModel*>& blocks, int numPoints, float timeStep) {
+
 	// 속도가 거의 없으면 그리지 않음
 	if (glm::length(velocity) < 0.1f) return;
 
@@ -161,9 +198,12 @@ void TrajectoryPredictor::draw(const glm::vec3& startPos, const glm::vec3& veloc
 		glBindVertexArray(0);
 	}
 
-	// 2. 착지 지점에 노란색 원 그리기
-	glm::vec3 landingPoint = calculateLandingPoint(startPos, velocity, -0.8f); // 블록 위 높이
-	drawCircle(landingPoint, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f)); // 노란색, 반지름 1.0
+	// 2. 블록 위 착지 지점에만 노란색 원 그리기
+	glm::vec3 landingPoint;
+	if (calculateLandingPointOnBlock(startPos, velocity, blocks, landingPoint)) {
+		drawCircle(landingPoint, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f)); // 노란색, 반지름 1.0
+	}
+	// 블록에 착지하지 않으면 원을 그리지 않음
 }
 
 void TrajectoryPredictor::cleanup() {

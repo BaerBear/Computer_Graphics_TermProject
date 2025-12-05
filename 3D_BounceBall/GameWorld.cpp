@@ -1,4 +1,4 @@
-#include "GameWorld.h"
+ï»¿#include "GameWorld.h"
 #include <iostream>
 
 GameWorld::GameWorld(GLuint shaderID)
@@ -17,19 +17,19 @@ void GameWorld::initialize()
 {
 	std::cout << "Initializing GameWorld..." << std::endl;
 
-	// ÇÃ·¹ÀÌ¾î ÃÊ±âÈ­ (À§Ä¡: ½ÃÀÛ ÁöÁ¡ À§)
+	// í”Œë ˆì´ì–´ ì´ˆê¸°í™” (ìœ„ì¹˜: ì‹œì‘ ì§€ì  ìœ„)
 	player_.init("obj/uv_sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
 	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
 	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	player_.radius_ = 0.5f * player_.getScaleFactor();
 
-	// ¸Ê »ı¼º (¼ø¼­´ë·Î ¹èÄ¡)
-	createFloorBlocks();      // ±âº» ¹Ù´Ú ¹× ¾ÈÀüÁö´ë
-	createBounceBlocks();     // Á¡ÇÁ ±¸°£
-	createBreakableBlocks();  // ÇÔÁ¤ ´Ù¸®
-	createSpikeBlocks();      // °¡½Ã Àå¾Ö¹°
-	createStars();            // º° ¹èÄ¡
+	// ë§µ ìƒì„± (ìˆœì„œëŒ€ë¡œ ë°°ì¹˜)
+	createFloorBlocks();      // ê¸°ë³¸ ë°”ë‹¥ ë° ì•ˆì „ì§€ëŒ€
+	createBounceBlocks();     // ì í”„ êµ¬ê°„
+	createBreakableBlocks();  // í•¨ì • ë‹¤ë¦¬
+	createSpikeBlocks();      // ê°€ì‹œ ì¥ì• ë¬¼
+	createStars();            // ë³„ ë°°ì¹˜
 
 	trajectoryPredictor_.init(shaderProgramID_);
 
@@ -56,7 +56,7 @@ void GameWorld::reset()
 {
 	cleanup();
 
-	// ÇÃ·¹ÀÌ¾î ¸®¼Â
+	// í”Œë ˆì´ì–´ ë¦¬ì…‹
 	player_.reset();
 	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
 	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
@@ -81,7 +81,7 @@ void GameWorld::update(float deltaTime)
 
 	player_.update(deltaTime);
 
-	// º° È¸Àü ¾Ö´Ï¸ŞÀÌ¼Ç
+	// ë³„ íšŒì „ ì• ë‹ˆë©”ì´ì…˜
 	for (auto star : stars_) {
 		glm::vec3 currentRot = star->getRotation();
 		star->setRotation(currentRot + glm::vec3(0.0f, 90.0f * deltaTime, 0.0f));
@@ -89,7 +89,7 @@ void GameWorld::update(float deltaTime)
 
 	checkCollisions();
 
-	// ³«»ç Ã³¸® (¸Ê ¾Æ·¡·Î ¶³¾îÁö¸é ¸®¼Â)
+	// ë‚™ì‚¬ ì²˜ë¦¬ (ë§µ ì•„ë˜ë¡œ ë–¨ì–´ì§€ë©´ ë¦¬ì…‹)
 	if (player_.getTranslation().y < -15.0f)
 	{
 		std::cout << "Game Over! Restarting..." << std::endl;
@@ -101,12 +101,20 @@ void GameWorld::draw()
 {
 	player_.draw();
 
-	// ÇÃ·¹ÀÌ¾î ±ËÀû ¿¹Ãø Ç¥½Ã
+	// ëª¨ë“  ë¸”ë¡ì„ í•˜ë‚˜ì˜ ë²¡í„°ë¡œ ìˆ˜ì§‘
+	std::vector<ParentModel*> allBlocks;
+	for (auto block : blocks_) allBlocks.push_back(block);
+	for (auto block : bounceBlocks_) allBlocks.push_back(block);
+	for (auto block : breakableBlocks_) allBlocks.push_back(block);
+	// ê°€ì‹œ ë¸”ë¡ê³¼ ë³„ì€ ì œì™¸ (ì°©ì§€ ëŒ€ìƒì´ ì•„ë‹˜)
+
+	// í”Œë ˆì´ì–´ ê¶¤ì  ì˜ˆì¸¡ í‘œì‹œ (ë¸”ë¡ ì •ë³´ ì „ë‹¬)
 	trajectoryPredictor_.draw(
-		player_.getPosition(),  // ÇöÀç À§Ä¡
-		player_.velocity_,      // ÇöÀç ¼Óµµ
-		50,                     // Á¡ °³¼ö (¸¹À»¼ö·Ï ºÎµå·¯¿ò)
-		0.05f                   // ½Ã°£ °£°İ (ÀÛÀ»¼ö·Ï Á¤¹Ğ)
+		player_.getPosition(),
+		player_.velocity_,
+		allBlocks,  // ğŸ‘ˆ ë¸”ë¡ ì •ë³´ ì „ë‹¬
+		50,
+		0.05f
 	);
 
 	for (auto block : blocks_) block->draw();
@@ -118,22 +126,22 @@ void GameWorld::draw()
 
 void GameWorld::checkCollisions()
 {
-	// ÀÏ¹İ ºí·°
+	// ì¼ë°˜ ë¸”ëŸ­
 	for (auto block : blocks_) {
 		if (player_.checkCollision(block)) player_.onCollision(block);
 	}
 
-	// Æ¨±â´Â ºí·°
+	// íŠ•ê¸°ëŠ” ë¸”ëŸ­
 	for (auto block : bounceBlocks_) {
 		if (player_.checkCollision(block)) player_.onCollision(block);
 	}
 
-	// ºÎ¼­Áö´Â ºí·°
+	// ë¶€ì„œì§€ëŠ” ë¸”ëŸ­
 	for (auto it = breakableBlocks_.begin(); it != breakableBlocks_.end(); ) {
 		BREAKABLE_BLOCK* block = *it;
 		if (player_.checkCollision(block)) {
 			player_.onCollision(block);
-			block->onCollision(&player_); // ºÎ¼­Áü Ã¼Å©
+			block->onCollision(&player_); // ë¶€ì„œì§ ì²´í¬
 
 			if (block->isBroken_) {
 				addScore(10);
@@ -145,14 +153,14 @@ void GameWorld::checkCollisions()
 		++it;
 	}
 
-	// °¡½Ã ºí·°
+	// ê°€ì‹œ ë¸”ëŸ­
 	for (auto block : spikeBlocks_) {
 		if (player_.checkCollision(block)) {
-			player_.onCollision(block); // ´êÀ¸¸é »ç¸Á(Reset)
+			player_.onCollision(block); // ë‹¿ìœ¼ë©´ ì‚¬ë§(Reset)
 		}
 	}
 
-	// º° (ºí·°)
+	// ë³„ (ë¸”ëŸ­)
 	for (auto it = stars_.begin(); it != stars_.end(); ) {
 		STAR* star = *it;
 		if (player_.checkCollision(star)) {
@@ -177,16 +185,16 @@ void GameWorld::addSpikeBlock(SPIKE_BLOCK* block) { spikeBlocks_.push_back(block
 void GameWorld::addStar(STAR* star) { stars_.push_back(star); }
 
 // ==========================================
-//              ·¹º§ µğÀÚÀÎ ±¸Çö
+//              ë ˆë²¨ ë””ìì¸ êµ¬í˜„
 // ==========================================
 
 void GameWorld::createFloorBlocks()
 {
-	// 1. ½ÃÀÛ ÁöÁ¡ (Start Zone) - 3x3 ¾ÈÀüÁö´ë
+	// 1. ì‹œì‘ ì§€ì  (Start Zone) - 3x3 ì•ˆì „ì§€ëŒ€
 	for (int x = -1; x <= 1; x++) {
 		for (int z = -1; z <= 1; z++) {
 			BLOCK* block = new BOUNCE_BLOCK();
-			// È¸»ö ¹Ù´Ú
+			// íšŒìƒ‰ ë°”ë‹¥
 			block->init("obj/uv_cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
 			block->setTranslation(glm::vec3(x * 2.0f, -1.0f, z * 2.0f));
 			block->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
@@ -194,18 +202,18 @@ void GameWorld::createFloorBlocks()
 		}
 	}
 
-	// 2. Â¡°Ë´Ù¸® (Stepping Stones) - ÀÏ¹İ Á¡ÇÁ ±¸°£
+	// 2. ì§•ê²€ë‹¤ë¦¬ (Stepping Stones) - ì¼ë°˜ ì í”„ êµ¬ê°„
 	for (int i = 1; i <= 3; i++) {
 		BLOCK* block = new BOUNCE_BLOCK();
 		block->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
-		// ZÃàÀ¸·Î -4, -7, -10 ¸¸Å­ ¶³¾î¶ß·Á¼­ ¹èÄ¡
+		// Zì¶•ìœ¼ë¡œ -4, -7, -10 ë§Œí¼ ë–¨ì–´ëœ¨ë ¤ì„œ ë°°ì¹˜
 		block->setTranslation(glm::vec3(0.0f, -1.0f, -2.0f - (i * 3.0f)));
 		block->setSelfScale(glm::vec3(0.8f, 0.2f, 0.8f));
 		blocks_.push_back(block);
 	}
 
-	// 3. ³ôÀº ÇÃ·§Æû (High Platform) - ¹Ù¿î½º ºí·° ÂøÁö ÁöÁ¡
-	// À§Ä¡: Z = -20, ³ôÀÌ Y = 2.0 (À§·Î ¿Ã¶ó°¨)
+	// 3. ë†’ì€ í”Œë«í¼ (High Platform) - ë°”ìš´ìŠ¤ ë¸”ëŸ­ ì°©ì§€ ì§€ì 
+	// ìœ„ì¹˜: Z = -20, ë†’ì´ Y = 2.0 (ìœ„ë¡œ ì˜¬ë¼ê°)
 	for (int x = -1; x <= 1; x++) {
 		BLOCK* block = new BOUNCE_BLOCK();
 		block->init("obj/uv_cube.obj", shaderProgramID_, 0.8f, 0.8f, 0.8f);
@@ -214,26 +222,26 @@ void GameWorld::createFloorBlocks()
 		blocks_.push_back(block);
 	}
 
-	// 4. °¡½Ã ÇÔÁ¤ ¾ÕµÚ ¾ÈÀü ¹ßÆÇ
-	// °¡½Ã Àü ¹ßÆÇ
+	// 4. ê°€ì‹œ í•¨ì • ì•ë’¤ ì•ˆì „ ë°œíŒ
+	// ê°€ì‹œ ì „ ë°œíŒ
 	BLOCK* safe1 = new BOUNCE_BLOCK();
 	safe1->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 	safe1->setTranslation(glm::vec3(0.0f, 2.0f, -32.0f));
 	safe1->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 	blocks_.push_back(safe1);
 
-	// °¡½Ã ÈÄ ¹ßÆÇ
+	// ê°€ì‹œ í›„ ë°œíŒ
 	BLOCK* safe2 = new BOUNCE_BLOCK();
 	safe2->init("obj/uv_cube.obj", shaderProgramID_, 0.6f, 0.6f, 0.6f);
 	safe2->setTranslation(glm::vec3(0.0f, 2.0f, -40.0f));
 	safe2->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
 	blocks_.push_back(safe2);
 
-	// 5. µµÂø ÁöÁ¡ (Goal Zone) - ³ĞÀº ÇÃ·§Æû
+	// 5. ë„ì°© ì§€ì  (Goal Zone) - ë„“ì€ í”Œë«í¼
 	for (int x = -2; x <= 2; x++) {
 		for (int z = 0; z < 3; z++) {
 			BLOCK* block = new BLOCK();
-			// µµÂø ÁöÁ¡Àº ±İ»ö(³ë¶õ»ö) ´À³¦
+			// ë„ì°© ì§€ì ì€ ê¸ˆìƒ‰(ë…¸ë€ìƒ‰) ëŠë‚Œ
 			block->init("obj/uv_cube.obj", shaderProgramID_, 1.0f, 0.84f, 0.0f);
 			block->setTranslation(glm::vec3(x * 2.0f, 2.0f, -48.0f - (z * 2.0f)));
 			block->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
@@ -244,10 +252,10 @@ void GameWorld::createFloorBlocks()
 
 void GameWorld::createBounceBlocks()
 {
-	// ¹Ù¿î½º ±¸°£: Â¡°Ë´Ù¸®¿Í ³ôÀº ÇÃ·§Æû »çÀÌ
-	// À§Ä¡: Z = -15 (³·Àº °÷¿¡ ¹èÄ¡ÇØ¼­ ¹â°í ¿Ã¶ó°¡°Ô ÇÔ)
+	// ë°”ìš´ìŠ¤ êµ¬ê°„: ì§•ê²€ë‹¤ë¦¬ì™€ ë†’ì€ í”Œë«í¼ ì‚¬ì´
+	// ìœ„ì¹˜: Z = -15 (ë‚®ì€ ê³³ì— ë°°ì¹˜í•´ì„œ ë°Ÿê³  ì˜¬ë¼ê°€ê²Œ í•¨)
 	BOUNCE_BLOCK* bounceBlock = new BOUNCE_BLOCK();
-	// ÆÄ¶õ»ö
+	// íŒŒë€ìƒ‰
 	bounceBlock->init("obj/uv_cube.obj", shaderProgramID_, 0.0f, 0.5f, 1.0f);
 	bounceBlock->setTranslation(glm::vec3(0.0f, -1.0f, -15.0f));
 	bounceBlock->setSelfScale(glm::vec3(1.0f, 0.2f, 1.0f));
@@ -256,11 +264,11 @@ void GameWorld::createBounceBlocks()
 
 void GameWorld::createBreakableBlocks()
 {
-	// ºÎ¼­Áö´Â ´Ù¸®: ³ôÀº ÇÃ·§Æû(Z=-20)¿¡¼­ ´ÙÀ½ ±¸°£À¸·Î ¿¬°á
-	// À§Ä¡: Z = -23, -26, -29
+	// ë¶€ì„œì§€ëŠ” ë‹¤ë¦¬: ë†’ì€ í”Œë«í¼(Z=-20)ì—ì„œ ë‹¤ìŒ êµ¬ê°„ìœ¼ë¡œ ì—°ê²°
+	// ìœ„ì¹˜: Z = -23, -26, -29
 	for (int i = 0; i < 3; i++) {
 		BREAKABLE_BLOCK* block = new BREAKABLE_BLOCK();
-		// ÀÚÁÖ»ö (°æ°í ´À³¦)
+		// ìì£¼ìƒ‰ (ê²½ê³  ëŠë‚Œ)
 		block->init("obj/uv_cube.obj", shaderProgramID_, 1.0f, 0.0f, 1.0f);
 		block->setTranslation(glm::vec3(0.0f, 2.0f, -23.0f - (i * 2.5f)));
 		block->setSelfScale(glm::vec3(0.8f, 0.2f, 0.8f));
@@ -270,19 +278,19 @@ void GameWorld::createBreakableBlocks()
 
 void GameWorld::createSpikeBlocks()
 {
-	// °¡½Ã ÇÔÁ¤ ±¸°£: µÎ ¾ÈÀü ¹ßÆÇ »çÀÌ (Z = -36)
-	// Á¡ÇÁÇØ¼­ ³Ñ¾î°¡¾ß ÇÔ. °¡½Ã¿¡ ´êÀ¸¸é Á×À½.
+	// ê°€ì‹œ í•¨ì • êµ¬ê°„: ë‘ ì•ˆì „ ë°œíŒ ì‚¬ì´ (Z = -36)
+	// ì í”„í•´ì„œ ë„˜ì–´ê°€ì•¼ í•¨. ê°€ì‹œì— ë‹¿ìœ¼ë©´ ì£½ìŒ.
 	SPIKE_BLOCK* spike = new SPIKE_BLOCK();
-	// »¡°£»ö
+	// ë¹¨ê°„ìƒ‰
 	spike->init("obj/uv_cube.obj", shaderProgramID_, 1.0f, 0.0f, 0.0f);
-	// ¹ßÆÇº¸´Ù ¾à°£ ³·°Ô ¹èÄ¡ÇÏ°Å³ª, ±æ°Ô ¹èÄ¡ÇØ¼­ Á¡ÇÁ À¯µµ
+	// ë°œíŒë³´ë‹¤ ì•½ê°„ ë‚®ê²Œ ë°°ì¹˜í•˜ê±°ë‚˜, ê¸¸ê²Œ ë°°ì¹˜í•´ì„œ ì í”„ ìœ ë„
 	spike->setTranslation(glm::vec3(0.0f, 1.5f, -36.0f));
-	spike->setSelfScale(glm::vec3(0.5f, 0.5f, 2.0f)); // ±æÂßÇÑ °¡½Ã¹ç
+	spike->setSelfScale(glm::vec3(0.5f, 0.5f, 2.0f)); // ê¸¸ì­‰í•œ ê°€ì‹œë°­
 	spikeBlocks_.push_back(spike);
 }
 
 void GameWorld::createStars() {
-	// ÀÏ´ÜÀº ¸Ê °÷°÷¿¡ º° ¹èÄ¡
+	// ì¼ë‹¨ì€ ë§µ ê³³ê³³ì— ë³„ ë°°ì¹˜
 	STAR* star1 = new STAR();
 	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
