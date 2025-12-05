@@ -277,6 +277,6 @@ void GameWorld::createStars() {
 	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 	star1->setTranslation(glm::vec3(0.0f, 1.0f, -10.0f));
-	star1->setSelfScale(glm::vec3(0.3f, 0.3f, 0.3f));
+	star1->setSelfScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	stars_.push_back(star1);
 }
