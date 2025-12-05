@@ -41,4 +41,5 @@ private:
 	void handleRenderingKeys(unsigned char key);
 	void handleLightingKeys(unsigned char key);
 	void handleGameKeys(unsigned char key);
+	void handleTrajectoryKeys(unsigned char key);
 };

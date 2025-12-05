@@ -143,6 +143,7 @@ void main(int argc, char** argv)
 	std::cout << "P/p: Perspective/Orthographic Projection" << std::endl;
 	std::cout << "R: Toggle Lighting" << std::endl;
 	std::cout << "+/-: Adjust Light Intensity" << std::endl;
+	std::cout << "T: Trace Path" << std::endl;
 	std::cout << "Q: Quit" << std::endl;
 	std::cout << "================\n" << std::endl;
 

@@ -101,21 +101,23 @@ void GameWorld::draw()
 {
 	player_.draw();
 
-	// 모든 블록을 하나의 벡터로 수집
-	std::vector<ParentModel*> allBlocks;
-	for (auto block : blocks_) allBlocks.push_back(block);
-	for (auto block : bounceBlocks_) allBlocks.push_back(block);
-	for (auto block : breakableBlocks_) allBlocks.push_back(block);
-	// 가시 블록과 별은 제외 (착지 대상이 아님)
+	// 궤적 표시가 활성화된 경우에만 그리기
+	if (showTrajectory_) {
+		// 모든 블록을 하나의 벡터로 수집
+		std::vector<ParentModel*> allBlocks;
+		for (auto block : blocks_) allBlocks.push_back(block);
+		for (auto block : bounceBlocks_) allBlocks.push_back(block);
+		for (auto block : breakableBlocks_) allBlocks.push_back(block);
 
-	// 플레이어 궤적 예측 표시 (블록 정보 전달)
-	trajectoryPredictor_.draw(
-		player_.getPosition(),
-		player_.velocity_,
-		allBlocks,  // 👈 블록 정보 전달
-		50,
-		0.05f
-	);
+		// 플레이어 궤적 예측 표시 (블록 정보 전달)
+		trajectoryPredictor_.draw(
+			player_.getPosition(),
+			player_.velocity_,
+			allBlocks,
+			50,
+			0.05f
+		);
+	}
 
 	for (auto block : blocks_) block->draw();
 	for (auto block : bounceBlocks_) block->draw();

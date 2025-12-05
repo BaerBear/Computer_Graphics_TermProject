@@ -37,6 +37,10 @@ public:
 	void setGameStarted(bool started) { gameStarted_ = started; }
 	bool isGameStarted() const { return gameStarted_; }
 
+	// 궤적 표시 토글
+	void toggleTrajectory() { showTrajectory_ = !showTrajectory_; }
+	bool isTrajectoryVisible() const { return showTrajectory_; }
+
 private:
 	GLuint shaderProgramID_;
 
@@ -49,6 +53,7 @@ private:
 
 	bool gameStarted_;
 	int score_;
+	bool showTrajectory_ = false;
 
 	void createFloorBlocks();
 	void createBounceBlocks();

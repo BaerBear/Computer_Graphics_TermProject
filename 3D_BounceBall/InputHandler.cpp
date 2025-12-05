@@ -49,6 +49,7 @@ void InputHandler::handleKeyboard(unsigned char key, int x, int y)
 	handleRenderingKeys(key);
 	handleLightingKeys(key);
 	handleGameKeys(key);
+	handleTrajectoryKeys(key);
 
 	if (key == 'q' || key == 'Q') {
 		exit(0);
@@ -185,6 +186,21 @@ void InputHandler::handleGameKeys(unsigned char key)
 	case 'X':
 		gameWorld_->reset();
 		std::cout << "Game Reset! Score: " << gameWorld_->getScore() << std::endl;
+		break;
+	}
+}
+
+void InputHandler::handleTrajectoryKeys(unsigned char key)
+{
+	if (!gameWorld_)
+		return;
+
+	switch (key)
+	{
+	case 't':
+	case 'T':
+		gameWorld_->toggleTrajectory();
+		std::cout << "Trajectory: " << (gameWorld_->isTrajectoryVisible() ? "ON" : "OFF") << std::endl;
 		break;
 	}
 }
