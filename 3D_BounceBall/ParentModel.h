@@ -10,6 +10,7 @@ enum class CollisionType {
 	BOUNCE_BLOCK,    // 튕기는 블럭
 	BREAKABLE_BLOCK, // 부서지는 블럭
 	SPIKE_BLOCK,      // 가시 블럭
+	ARROW_BLOCK,   // 화살표 블럭
 	STAR			// 별
 };
 

@@ -29,6 +29,7 @@ void GameWorld::initialize()
 	createBounceBlocks();     // 점프 구간
 	createBreakableBlocks();  // 함정 다리
 	createSpikeBlocks();      // 가시 장애물
+	createArrowBlocks();     // 화살표 블럭
 	createStars();            // 별 배치
 
 	trajectoryPredictor_.init(shaderProgramID_);
@@ -43,12 +44,14 @@ void GameWorld::cleanup()
 	for (auto block : bounceBlocks_) delete block;
 	for (auto block : breakableBlocks_) delete block;
 	for (auto block : spikeBlocks_) delete block;
+	for (auto block : arrowBlocks_) delete block;
 	for (auto star : stars_) delete star;
 
 	blocks_.clear();
 	bounceBlocks_.clear();
 	breakableBlocks_.clear();
 	spikeBlocks_.clear();
+	arrowBlocks_.clear();
 	stars_.clear();
 }
 
@@ -68,6 +71,7 @@ void GameWorld::reset()
 	createBounceBlocks();
 	createBreakableBlocks();
 	createSpikeBlocks();
+	createArrowBlocks();
 	createStars();
 
 	score_ = 0;
@@ -123,6 +127,7 @@ void GameWorld::draw()
 	for (auto block : bounceBlocks_) block->draw();
 	for (auto block : breakableBlocks_) block->draw();
 	for (auto block : spikeBlocks_) block->draw();
+	for (auto block : arrowBlocks_) block->draw();
 	for (auto star : stars_) star->draw();
 }
 
@@ -162,6 +167,13 @@ void GameWorld::checkCollisions()
 		}
 	}
 
+	// 화살표 블록 충돌 체크
+	for (auto block : arrowBlocks_) {
+		if (player_.checkCollision(block)) {
+			player_.onCollision(block);
+		}
+	}
+
 	// 별 (블럭)
 	for (auto it = stars_.begin(); it != stars_.end(); ) {
 		STAR* star = *it;
@@ -184,6 +196,7 @@ void GameWorld::addBlock(BLOCK* block) { blocks_.push_back(block); }
 void GameWorld::addBounceBlock(BOUNCE_BLOCK* block) { bounceBlocks_.push_back(block); }
 void GameWorld::addBreakableBlock(BREAKABLE_BLOCK* block) { breakableBlocks_.push_back(block); }
 void GameWorld::addSpikeBlock(SPIKE_BLOCK* block) { spikeBlocks_.push_back(block); }
+void GameWorld::addArrowBlock(ARROW_BLOCK* block) { arrowBlocks_.push_back(block); }
 void GameWorld::addStar(STAR* star) { stars_.push_back(star); }
 
 // ==========================================
@@ -291,12 +304,23 @@ void GameWorld::createSpikeBlocks()
 	spikeBlocks_.push_back(spike);
 }
 
+void GameWorld::createArrowBlocks() {
+	// 예시: Z축 방향으로 날아가는 화살표 블록
+	ARROW_BLOCK* arrow1 = new ARROW_BLOCK();
+	arrow1->init("obj/uv_cube.obj", shaderProgramID_, 0.0f, 1.0f, 0.0f);  // 녹색
+	arrow1->setTranslation(glm::vec3(0.0f, 0.0f, -12.0f));
+	arrow1->setSelfScale(glm::vec3(1.0f, 0.5f, 1.0f));
+	arrow1->setArrowDirection(glm::vec3(0.0f, 1.0f, 0.0f));  // 방향
+	arrow1->launchSpeed_ = 10.0f;		// 속도
+	arrowBlocks_.push_back(arrow1);
+}
+
 void GameWorld::createStars() {
 	// 일단은 맵 곳곳에 별 배치
 	STAR* star1 = new STAR();
 	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 	star1->setTranslation(glm::vec3(0.0f, 3.0f, 0.0f));
-	star1->setSelfScale(glm::vec3(0.1f, 0.1f, 0.1f));
+	star1->setSelfScale(glm::vec3(0.1f, 0.3f, 0.1f));
 	stars_.push_back(star1);
 }

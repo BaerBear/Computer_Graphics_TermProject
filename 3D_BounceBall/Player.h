@@ -27,6 +27,10 @@ public:
 		velocity_ = vel;
 	}
 
+	// 화살표 모드 상태
+	bool isInArrowMode() const { return isFlying_; }
+	void exitArrowMode() { isFlying_ = false; }	// WASD 입력 시 호출
+
 	void update(float deltaTime);
 	void move(const glm::vec3& forward, const glm::vec3& right, int direction, float speed);
 	void Deceleration(float deltaTime);  // 입력 없을 때 감속
@@ -44,11 +48,14 @@ private:
 	float maxSpeed_ = 5.0f;							// 최대 속도
 	float acceleration_ = 6.0f;						// 가속도
 	float deceleration_ = 6.0f;						// 감속도
-	glm::vec3 inputDirection_ = glm::vec3(0.0f);	// 현재 입력 방향
+	// glm::vec3 inputDirection_ = glm::vec3(0.0f);	// 현재 입력 방향
+
+	bool isFlying_ = false;		// 화살표 모드 상태
 
 	void handleNormalBlockCollision(ParentModel* block);
 	void handleBounceBlockCollision(ParentModel* block);
 	void handleBreakableBlockCollision(ParentModel* block);
 	void handleSpikeBlockCollision(ParentModel* block);
+	void handleArrowBlockCollision(ParentModel* block);
 	void handleStarCollision(ParentModel* star);
 };

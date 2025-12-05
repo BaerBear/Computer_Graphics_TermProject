@@ -33,6 +33,26 @@ public:
 	CollisionType getCollisionType() const override;
 };
 
+// 화살표 블록
+class ARROW_BLOCK : public BLOCK
+{
+public:
+	glm::vec3 arrowDirection_ = glm::vec3(0.0f, 0.0f, -1.0f); // 화살표 방향
+	float launchSpeed_ = 10.0f; // 발사 속도
+
+	CollisionType getCollisionType() const override;
+
+	// 화살표 방향 설정 (단위 벡터로 자동 정규화)
+	void setArrowDirection(const glm::vec3& dir) {
+		if (glm::length(dir) > 0.001f) {
+			arrowDirection_ = glm::normalize(dir);
+		}
+	}
+
+	glm::vec3 getArrowDirection() const { return arrowDirection_; }
+	float getLaunchSpeed() const { return launchSpeed_; }
+};
+
 // 별
 class STAR : public ParentModel
 {

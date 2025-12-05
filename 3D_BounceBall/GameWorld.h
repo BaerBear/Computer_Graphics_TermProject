@@ -29,6 +29,7 @@ public:
 	void addBounceBlock(BOUNCE_BLOCK* block);
 	void addBreakableBlock(BREAKABLE_BLOCK* block);
 	void addSpikeBlock(SPIKE_BLOCK* block);
+	void addArrowBlock(ARROW_BLOCK* block);
 	void addStar(STAR* star);
 
 	// 게임 상태
@@ -49,6 +50,7 @@ private:
 	std::vector<BOUNCE_BLOCK*> bounceBlocks_;
 	std::vector<BREAKABLE_BLOCK*> breakableBlocks_;
 	std::vector<SPIKE_BLOCK*> spikeBlocks_;
+	std::vector<ARROW_BLOCK*> arrowBlocks_;
 	std::vector<STAR*> stars_;
 
 	bool gameStarted_;
@@ -59,6 +61,7 @@ private:
 	void createBounceBlocks();
 	void createBreakableBlocks();
 	void createSpikeBlocks();
+	void createArrowBlocks();
 	void createStars();
 
 	TrajectoryPredictor trajectoryPredictor_;

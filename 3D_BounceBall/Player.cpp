@@ -1,13 +1,21 @@
 #include "Player.h"
+#include "Block.h"
 
 void PLAYER::update(float deltaTime) {
 	translation_.x += velocity_.x * deltaTime;
 	translation_.y += velocity_.y * deltaTime;
 	translation_.z += velocity_.z * deltaTime;
-	velocity_.y -= 9.8f * deltaTime;  // 중력
+
+	if (!isFlying_) {
+		velocity_.y -= 9.8f * deltaTime;  // 중력
+	}
 }
 
 void PLAYER::move(const glm::vec3& forward, const glm::vec3& right, int direction, float speed) {
+	if (isFlying_) {
+		isFlying_ = false; // 화살표 모드에서는 이동 무시
+	}
+	
 	glm::vec3 movement(0.0f);
 	// 카메라 정면 방향 = 정면
 
@@ -43,6 +51,10 @@ void PLAYER::move(const glm::vec3& forward, const glm::vec3& right, int directio
 }
 
 void PLAYER::Deceleration(float deltaTime) {
+	if (isFlying_) {
+		return; // 화살표 모드에서는 감속 무시 (등속 운동)
+	}
+
 	// 입력이 없을 때 속도 감소
 	if( glm::length(glm::vec2(velocity_.x, velocity_.z)) < 0.01f) {
 		velocity_.x = 0.0f;
@@ -73,6 +85,9 @@ void PLAYER::onCollision(ParentModel* other) {
 		break;
 	case CollisionType::SPIKE_BLOCK:
 		handleSpikeBlockCollision(other);
+		break;
+	case CollisionType::ARROW_BLOCK:
+		handleArrowBlockCollision(other);
 		break;
 	case CollisionType::STAR:
 		handleStarCollision(other);
@@ -128,6 +143,34 @@ void PLAYER::handleBreakableBlockCollision(ParentModel* block) {
 void PLAYER::handleSpikeBlockCollision(ParentModel* block) {
 	reset();
 	velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+void PLAYER::handleArrowBlockCollision(ParentModel* block) {
+	ARROW_BLOCK* arrowBlock = dynamic_cast<ARROW_BLOCK*>(block);
+	if (!arrowBlock) return;
+
+	glm::vec3 blockPos = block->getPosition();
+	glm::vec3 blockScale = block->getScale();
+	glm::vec3 playerPos = getPosition();
+
+	// 블록의 윗면(top face)과의 충돌 감지
+	float blockTopY = blockPos.y + blockScale.y * 0.5f;
+
+	// 플레이어가 블록 윗면 근처에 있고, 아래로 이동 중일 때만 발동
+	if (abs(playerPos.y - blockTopY) < radius_ + 0.1f && velocity_.y <= 0.0f) {
+		// 화살표 방향으로 등속 운동 시작
+		glm::vec3 launchVelocity = arrowBlock->getArrowDirection() * arrowBlock->getLaunchSpeed();
+		velocity_ = launchVelocity;
+
+		// 화살표 모드 활성화 (중력 영향 제거)
+		isFlying_ = true;
+
+		// 블록 위로 살짝 올리기 (블록에 끼지 않도록)
+		translation_.y = blockTopY + radius_ + 0.05f;
+
+		std::cout << "Arrow Block activated! Flying in direction: ("
+			<< launchVelocity.x << ", " << launchVelocity.y << ", " << launchVelocity.z << ")" << std::endl;
+	}
 }
 
 void PLAYER::handleStarCollision(ParentModel* star) {

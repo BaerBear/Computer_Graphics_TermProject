@@ -24,6 +24,10 @@ CollisionType SPIKE_BLOCK::getCollisionType() const {
 	return CollisionType::SPIKE_BLOCK;
 }
 
+CollisionType ARROW_BLOCK::getCollisionType() const {
+	return CollisionType::ARROW_BLOCK;
+}
+
 CollisionType STAR::getCollisionType() const {
 	return CollisionType::STAR;  // 새로운 타입 추가 필요
 }
