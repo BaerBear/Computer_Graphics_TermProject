@@ -74,6 +74,9 @@ void PLAYER::onCollision(ParentModel* other) {
 	case CollisionType::SPIKE_BLOCK:
 		handleSpikeBlockCollision(other);
 		break;
+	case CollisionType::STAR:
+		handleStarCollision(other);
+		break;
 	}
 }
 
@@ -128,5 +131,5 @@ void PLAYER::handleSpikeBlockCollision(ParentModel* block) {
 }
 
 void PLAYER::handleStarCollision(ParentModel* star) {
-	// 별 획득 처리 (예: 점수 증가)
+	// 별 하고 만났을 때 공한테 할 물리적인 처리들 (지금은 없음)
 }

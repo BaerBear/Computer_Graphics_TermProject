@@ -142,14 +142,14 @@ void GameWorld::checkCollisions()
 		}
 	}
 
-	// 별 충돌 체크
+	// 별 (블럭)
 	for (auto it = stars_.begin(); it != stars_.end(); ) {
 		STAR* star = *it;
 		if (player_.checkCollision(star)) {
 			player_.onCollision(star);
-			// star->onCollision(&player_); // 수집 처리
+			star->onCollision(&player_);
 			if (star->isCollected_) {
-				addScore(50);	// 별 획득 점수
+				addScore(50);
 				delete star;
 				it = stars_.erase(it);
 				std::cout << "Star collected! Score: " << score_ << std::endl;
@@ -276,7 +276,7 @@ void GameWorld::createStars() {
 	STAR* star1 = new STAR();
 	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
 	star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-	star1->setTranslation(glm::vec3(0.0f, 1.0f, -10.0f));
+	star1->setTranslation(glm::vec3(0.0f, 3.0f, 0.0f));
 	star1->setSelfScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	stars_.push_back(star1);
 }
