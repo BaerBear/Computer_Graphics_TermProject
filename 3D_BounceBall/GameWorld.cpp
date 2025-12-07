@@ -138,7 +138,10 @@ void GameWorld::checkCollisions()
 {
 	// 일반 블럭
 	for (auto block : blocks_) {
-		if (player_.checkCollision(block)) player_.onCollision(block);
+		if (player_.checkCollision(block)) {
+			player_.onCollision(block);
+			PlaySound(L"sounds\\bounce.wav", NULL, SND_FILENAME | SND_ASYNC);
+		}
 	}
 
 	// 튕기는 블럭
@@ -155,6 +158,7 @@ void GameWorld::checkCollisions()
 		BREAKABLE_BLOCK* block = *it;
 		if (player_.checkCollision(block)) {
 			player_.onCollision(block);
+			PlaySound(L"sounds\\bounce.wav", NULL, SND_FILENAME | SND_ASYNC);
 			block->onCollision(&player_); // 부서짐 체크
 
 			if (block->isBroken_) {
@@ -462,13 +466,13 @@ void GameWorld::createArrowBlocks()
 
 void GameWorld::createStars()
 {
-	// 별 1: 시작 지점 (튜토리얼)
-	STAR* star1 = new STAR();
-	star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
-	star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-	star1->setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
-	star1->setSelfScale(glm::vec3(0.15f, 0.3f, 0.15f));
-	stars_.push_back(star1);
+	//// 별 1: 시작 지점 (튜토리얼)
+	//STAR* star1 = new STAR();
+	//star1->init("obj/star.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
+	//star1->setRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+	//star1->setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
+	//star1->setSelfScale(glm::vec3(0.15f, 0.3f, 0.15f));
+	//stars_.push_back(star1);
 
 	// 별 2: 징검다리 중간 (어려움)
 	STAR* star2 = new STAR();
