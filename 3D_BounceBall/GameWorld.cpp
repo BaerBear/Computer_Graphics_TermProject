@@ -250,6 +250,9 @@ void GameWorld::update(float deltaTime)
 		// 스폰 포인트로 이동 (맵 초기화 안 함)
 		player_.setTranslation(spawnPoint_);
 		player_.velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// 부서진 블록 복구
+		resetBreakableBlocks();
 	}
 }
 
@@ -269,7 +272,12 @@ void GameWorld::draw()
 		std::vector<ParentModel*> allBlocks;
 		for (auto block : blocks_) allBlocks.push_back(block);
 		for (auto block : bounceBlocks_) allBlocks.push_back(block);
-		for (auto block : breakableBlocks_) allBlocks.push_back(block);
+		// 부서지지 않은 블록만 추가
+		for (auto block : breakableBlocks_) {
+			if (!block->isBroken_) {
+				allBlocks.push_back(block);
+			}
+		}
 
 		// 플레이어 궤적 예측 표시 (블록 정보 전달)
 		trajectoryPredictor_.draw(
@@ -283,7 +291,14 @@ void GameWorld::draw()
 
 	for (auto block : blocks_) block->draw();
 	for (auto block : bounceBlocks_) block->draw();
-	for (auto block : breakableBlocks_) block->draw();
+
+	// 부서지지 않은 블록만 그리기
+	for (auto block : breakableBlocks_) {
+		if (!block->isBroken_) {
+			block->draw();
+		}
+	}
+
 	for (auto block : spikeBlocks_) block->draw();
 	for (auto block : arrowBlocks_) block->draw();
 	for (auto star : stars_) star->draw();
@@ -362,8 +377,10 @@ void GameWorld::checkCollisions()
 	}
 
 	// 부서지는 블럭
-	for (auto it = breakableBlocks_.begin(); it != breakableBlocks_.end(); ) {
-		BREAKABLE_BLOCK* block = *it;
+	for (auto block : breakableBlocks_) {
+		// 이미 부서진 블록은 건너뛰기
+		if (block->isBroken_) continue;
+
 		if (player_.checkCollision(block)) {
 			player_.onCollision(block);
 			PlaySound(L"sounds\\bounce.wav", NULL, SND_FILENAME | SND_ASYNC);
@@ -371,12 +388,9 @@ void GameWorld::checkCollisions()
 
 			if (block->isBroken_) {
 				addScore(10);
-				delete block;
-				it = breakableBlocks_.erase(it);
-				continue;
+				// 블록을 삭제하지 않고 그냥 부서진 상태로 유지
 			}
 		}
-		++it;
 	}
 
 	// 가시 블럭 - 세이브 포인트로 리스폰
@@ -388,6 +402,9 @@ void GameWorld::checkCollisions()
 			// 스폰 포인트로 이동
 			player_.setTranslation(spawnPoint_);
 			player_.velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+
+			// 부서진 블록 복구
+			resetBreakableBlocks();
 			return;
 		}
 	}
@@ -775,4 +792,12 @@ void GameWorld::createStars()
 	star8->setTranslation(glm::vec3(0.0f, 17.0f, -143.0f));
 	star8->setSelfScale(glm::vec3(0.2f, 0.4f, 0.2f)); // 큰 별
 	stars_.push_back(star8);
+}
+
+void GameWorld::resetBreakableBlocks()
+{
+	for (auto block : breakableBlocks_) {
+		block->isBroken_ = false;
+	}
+	std::cout << "Breakable blocks restored!" << std::endl;
 }

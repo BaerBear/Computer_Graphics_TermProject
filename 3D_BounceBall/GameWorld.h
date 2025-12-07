@@ -54,6 +54,9 @@ public:
 	int getCollectedStars() const { return collectedStars_; }
 	int getTotalStars() const { return totalStars_; }
 
+	// 부서진 블록 복구
+	void resetBreakableBlocks();
+
 private:
 	GLuint shaderProgramID_;
 

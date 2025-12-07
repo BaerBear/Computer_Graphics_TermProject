@@ -24,6 +24,7 @@ public:
 
 	CollisionType getCollisionType() const override;
 	void onCollision(ParentModel* other) override;
+	void reset() override;  // 리셋 시 복구
 };
 
 // 가시 블럭
@@ -61,6 +62,7 @@ public:
 
 	CollisionType getCollisionType() const override;
 	void onCollision(ParentModel* other) override;
+	void reset() override;  // 리셋 시 복구
 
 	Shape getShape() const override {
 		return Shape::SPHERE;  // 구체로 충돌 처리
