@@ -24,6 +24,7 @@ class ParentModel
 public:
 	glm::mat4 createModelMatrix();
 	void init(const char* filename, GLuint shaderProgramID,  float r, float g, float b);
+	void loadTexture(const char* filepath) { m_.loadTextureFromFile(filepath); }
 	void draw();
 	virtual void reset();
 
