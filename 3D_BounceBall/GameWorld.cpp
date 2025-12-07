@@ -2,28 +2,164 @@
 #include <iostream>
 #include <windows.h>
 #include <mmsystem.h>
+#include <string>
+#include "stb_image.h"
 #pragma comment(lib, "winmm.lib")
 
 GameWorld::GameWorld(GLuint shaderID)
 	: shaderProgramID_(shaderID)
-	, gameStarted_(true)
+	, gameState_(GameState::TITLE)
+	, gameStarted_(false)
 	, score_(0)
+	, titleTextureID_(0)
+	, collectedStars_(0)
+	, totalStars_(0)
+	, spawnPoint_(0.0f, 2.0f, 0.0f)  // 초기 스폰 위치
 {
 }
+
 
 GameWorld::~GameWorld()
 {
 	cleanup();
+	// 타이틀 텍스처 정리
+	if (titleTextureID_ != 0) {
+		glDeleteTextures(1, &titleTextureID_);
+	}
+}
+
+bool GameWorld::loadTitleTexture(const char* filepath)
+{
+	int width, height, channels;
+	unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
+
+	if (!data) {
+		std::cerr << "Failed to load title image: " << filepath << std::endl;
+		return false;
+	}
+
+	std::cout << "Title texture loaded: " << filepath
+		<< " (" << width << "x" << height << ", " << channels << " channels)" << std::endl;
+
+	glGenTextures(1, &titleTextureID_);
+	glBindTexture(GL_TEXTURE_2D, titleTextureID_);
+
+	GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return true;
+}
+
+void GameWorld::drawTitleScreen()
+{
+	if (titleTextureID_ == 0) {
+		std::cout << "No title texture loaded!" << std::endl;
+		return;
+	}
+
+	// 셰이더 비활성화
+	glUseProgram(0);
+
+	// 3D 렌더링 비활성화
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_CULL_FACE);
+
+	// 2D 직교 투영으로 전환
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, glutGet(GLUT_WINDOW_WIDTH), 0, glutGet(GLUT_WINDOW_HEIGHT));
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// ========================================
+	// 🔧 여기서 직접 조정 가능!
+	// ========================================
+	float windowWidth = (float)glutGet(GLUT_WINDOW_WIDTH);
+	float windowHeight = (float)glutGet(GLUT_WINDOW_HEIGHT);
+
+	// 이미지 크기 및 위치 조정 (원하는 대로 수정하세요!)
+	float imageX = 0.0f;           // 이미지 X 시작 위치
+	float imageY = 0.0f;           // 이미지 Y 시작 위치
+	float imageWidth = windowWidth;   // 이미지 너비
+	float imageHeight = windowHeight; // 이미지 높이
+
+	// 텍스처 좌표 조정 (이미지 잘림 방지)
+	float texLeft = 0.0f;    // 왼쪽 텍스처 좌표 (0.0 ~ 1.0)
+	float texRight = 1.0f;   // 오른쪽 텍스처 좌표 (0.0 ~ 1.0)
+	float texTop = 0.0f;     // 위쪽 텍스처 좌표 (0.0 ~ 1.0)
+	float texBottom = 1.0f;  // 아래쪽 텍스처 좌표 (0.0 ~ 1.0)
+	// ========================================
+
+	// 텍스처 바인딩
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, titleTextureID_);
+
+	// 이미지 그리기
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+	// 왼쪽 아래
+	glTexCoord2f(texLeft, texBottom);
+	glVertex2f(imageX, imageY);
+
+	// 오른쪽 아래
+	glTexCoord2f(texRight, texBottom);
+	glVertex2f(imageX + imageWidth, imageY);
+
+	// 오른쪽 위
+	glTexCoord2f(texRight, texTop);
+	glVertex2f(imageX + imageWidth, imageY + imageHeight);
+
+	// 왼쪽 위
+	glTexCoord2f(texLeft, texTop);
+	glVertex2f(imageX, imageY + imageHeight);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	// 텍스트
+	glColor3f(1.0f, 1.0f, 0.0f);
+	glRasterPos2f(windowWidth / 2.0f - 100.0f, 50.0f);
+	std::string text = "Press Any Key to Start";
+	for (char c : text) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+	}
+
+	// 원래 상태로 복원
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	glEnable(GL_DEPTH_TEST);
+}
+void GameWorld::startGame()
+{
+	gameState_ = GameState::PLAYING;
+	gameStarted_ = true;
+	std::cout << "Game Started!" << std::endl;
 }
 
 void GameWorld::initialize()
 {
 	std::cout << "Initializing GameWorld..." << std::endl;
 
-	// 플레이어 초기화 (위치: 시작 지점 위)
+	loadTitleTexture("img/title.jpg");
+
+	// 플레이어 초기화
 	player_.init("obj/uv_sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
-	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
-	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
+	player_.setTranslation(spawnPoint_);  // 스폰 포인트에서 시작
 	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	player_.radius_ = 0.5f * player_.getScaleFactor();
 
@@ -35,10 +171,14 @@ void GameWorld::initialize()
 	createArrowBlocks();     // 화살표 블럭
 	createStars();            // 별 배치
 
+	// 총 별 개수 설정
+	totalStars_ = stars_.size();
+	collectedStars_ = 0;
+
 	trajectoryPredictor_.init(shaderProgramID_);
 
 	std::cout << "** GameWorld initialized **" << std::endl;
-	std::cout << "Level Generated with Obstacle Course!" << std::endl;
+	std::cout << "Total stars: " << totalStars_ << std::endl;
 }
 
 void GameWorld::cleanup()
@@ -62,10 +202,9 @@ void GameWorld::reset()
 {
 	cleanup();
 
-	// 플레이어 리셋
+	// 플레이어를 마지막 세이브 포인트에서 리셋
 	player_.reset();
-	player_.setTranslation(glm::vec3(0.0f, 2.0f, 0.0f));
-	glm::vec3 scale = player_.getSelfScale() * player_.getScaleFactor();
+	player_.setTranslation(spawnPoint_);  // 세이브 포인트로 이동
 	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	player_.radius_ = 0.5f * player_.getScaleFactor();
 	player_.velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -78,12 +217,18 @@ void GameWorld::reset()
 	createStars();
 
 	score_ = 0;
+	collectedStars_ = 0;  // 별 개수 초기화
+	totalStars_ = stars_.size();
 	gameStarted_ = true;
-	std::cout << "GameWorld reset!" << std::endl;
+
+	std::cout << "GameWorld reset at spawn point: ("
+		<< spawnPoint_.x << ", " << spawnPoint_.y << ", " << spawnPoint_.z << ")" << std::endl;
 }
 
 void GameWorld::update(float deltaTime)
 {
+	// 타이틀 화면에서는 업데이트 안 함
+	if (gameState_ != GameState::PLAYING) return;
 	if (!gameStarted_) return;
 
 	player_.update(deltaTime);
@@ -96,17 +241,26 @@ void GameWorld::update(float deltaTime)
 
 	checkCollisions();
 
-	// 낙사 처리 (맵 아래로 떨어지면 리셋)
+	// 낙사 처리 - 세이브 포인트로 리스폰
 	if (player_.getTranslation().y < -15.0f)
 	{
-		std::cout << "Game Over! Restarting..." << std::endl;
+		std::cout << "Fell off! Respawning at save point..." << std::endl;
 		PlaySound(L"sounds\\dead.wav", NULL, SND_FILENAME | SND_ASYNC);
-		reset();
+
+		// 스폰 포인트로 이동 (맵 초기화 안 함)
+		player_.setTranslation(spawnPoint_);
+		player_.velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 }
 
 void GameWorld::draw()
 {
+	// 타이틀 화면이면 타이틀만 그리기
+	if (gameState_ == GameState::TITLE) {
+		drawTitleScreen();
+		return;
+	}
+
 	if (ThirdPersonView_) player_.draw();
 
 	// 궤적 표시가 활성화된 경우에만 그리기
@@ -133,6 +287,59 @@ void GameWorld::draw()
 	for (auto block : spikeBlocks_) block->draw();
 	for (auto block : arrowBlocks_) block->draw();
 	for (auto star : stars_) star->draw();
+
+	// UI 그리기
+	drawUI();
+}
+
+// 새로운 함수: UI 그리기
+void GameWorld::drawUI()
+{
+	if (gameState_ != GameState::PLAYING) return;
+
+	// 셰이더 비활성화
+	glUseProgram(0);
+
+	// 2D 모드로 전환
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, glutGet(GLUT_WINDOW_WIDTH), 0, glutGet(GLUT_WINDOW_HEIGHT));
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+
+	// 별 개수 표시 (왼쪽 위)
+	float windowHeight = (float)glutGet(GLUT_WINDOW_HEIGHT);
+
+	glColor3f(1.0f, 1.0f, 0.0f);  // 노란색
+	glRasterPos2f(20.0f, windowHeight - 30.0f);
+
+	std::string starText = "Stars: " + std::to_string(collectedStars_) + "/" + std::to_string(totalStars_);
+	for (char c : starText) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+	}
+
+	// 점수 표시 (왼쪽 위 두 번째 줄)
+	glColor3f(0.0f, 1.0f, 1.0f);  // 시안색
+	glRasterPos2f(20.0f, windowHeight - 60.0f);
+
+	// std::string scoreText = "Score: " + std::to_string(score_);
+	// for (char c : scoreText) {
+	// 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+	// }
+
+	// 원래 상태로 복원
+	glEnable(GL_DEPTH_TEST);
+
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void GameWorld::checkCollisions()
@@ -172,12 +379,16 @@ void GameWorld::checkCollisions()
 		++it;
 	}
 
-	// 가시 블럭
+	// 가시 블럭 - 세이브 포인트로 리스폰
 	for (auto block : spikeBlocks_) {
 		if (player_.checkCollision(block)) {
+			std::cout << "Hit spike! Respawning at save point..." << std::endl;
 			PlaySound(L"sounds\\dead.wav", NULL, SND_FILENAME | SND_ASYNC);
-			player_.onCollision(block); // 닿으면 사망(Reset)
-			reset();
+
+			// 스폰 포인트로 이동
+			player_.setTranslation(spawnPoint_);
+			player_.velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+			return;
 		}
 	}
 
@@ -188,19 +399,27 @@ void GameWorld::checkCollisions()
 		}
 	}
 
-	// 별 (블럭)
+	// 별 수집 - 세이브 포인트 업데이트!
 	for (auto it = stars_.begin(); it != stars_.end(); ) {
 		STAR* star = *it;
 		if (player_.checkCollision(star)) {
 			player_.onCollision(star);
 			star->onCollision(&player_);
+
 			if (star->isCollected_) {
-				// 별 수집 효과음 재생
 				PlaySound(L"sounds\\star.wav", NULL, SND_FILENAME | SND_ASYNC);
 				addScore(50);
+				collectedStars_++;  // 별 개수 증가
+
+				// 세이브 포인트 업데이트 (별 위치로)
+				spawnPoint_ = star->getPosition();
+				spawnPoint_.y += 2.0f;  // 약간 위로 (별보다 위에서 스폰)
+
+				std::cout << "Star collected! (" << collectedStars_ << "/" << totalStars_ << ")" << std::endl;
+				std::cout << "Save point updated: (" << spawnPoint_.x << ", " << spawnPoint_.y << ", " << spawnPoint_.z << ")" << std::endl;
+
 				delete star;
 				it = stars_.erase(it);
-				std::cout << "Star collected! Score: " << score_ << std::endl;
 				continue;
 			}
 		}

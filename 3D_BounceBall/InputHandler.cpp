@@ -1,4 +1,5 @@
 #include "InputHandler.h"
+#include "GameWorld.h"
 #include <iostream>
 
 InputHandler::InputHandler()
@@ -36,11 +37,21 @@ void InputHandler::setLightingSettings(bool* turnLight, float* intensity)
 
 void InputHandler::handleKeyboard(unsigned char key, int x, int y)
 {
-	// GameWorld가 없으면 렌더링 관련 키만 처리
-	if (!gameWorld_ && (key != 'h' && key != 'H' && key != 'u' && key != 'U' &&
-		key != 'p' && key != 'P' && key != 'm' && key != 'M' &&
-		key != 'r' && key != 'R' && key != '+' && key != '-' &&
-		key != 'q' && key != 'Q')) {
+	// GameWorld가 없으면 기본 키만 처리
+	if (!gameWorld_) {
+		handleRenderingKeys(key);
+		handleLightingKeys(key);
+		if (key == 'q' || key == 'Q') {
+			exit(0);
+		}
+		return;
+	}
+
+	GameState state = gameWorld_->getGameState();
+
+	// 타이틀 화면: 아무 키나 누르면 게임 시작
+	if (state == GameState::TITLE) {
+		gameWorld_->startGame();
 		return;
 	}
 
@@ -66,6 +77,10 @@ void InputHandler::updateKeyStates()
 {
 	// 매 프레임 호출 - 플레이어 이동 입력 처리
 	if (!gameWorld_)
+		return;
+
+	// 타이틀 화면에서는 플레이어 이동 안 함
+	if (gameWorld_->getGameState() != GameState::PLAYING)
 		return;
 
 	PLAYER* player = gameWorld_->getPlayer();
