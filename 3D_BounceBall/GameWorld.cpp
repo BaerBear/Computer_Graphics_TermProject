@@ -15,6 +15,7 @@ GameWorld::GameWorld(GLuint shaderID)
 	, collectedStars_(0)
 	, totalStars_(0)
 	, spawnPoint_(0.0f, 2.0f, 0.0f)  // 초기 스폰 위치
+	, activateGravity_(true)
 {
 }
 
@@ -231,7 +232,7 @@ void GameWorld::update(float deltaTime)
 	if (gameState_ != GameState::PLAYING) return;
 	if (!gameStarted_) return;
 
-	player_.update(deltaTime);
+	if(activateGravity_) player_.update(deltaTime);
 
 	// 별 회전 애니메이션
 	for (auto star : stars_) {

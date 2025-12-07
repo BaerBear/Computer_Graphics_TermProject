@@ -36,6 +36,15 @@ public:
 
 	void update(float deltaTime);
 	void move(const glm::vec3& forward, const glm::vec3& right, int direction, float speed);
+	
+	void moveDebug(int direction);					 // 디버그용 이동
+	void moveForward()  { translation_.z -= 0.1f; }; // 디버그용 전진
+	void moveBackward() { translation_.z += 0.1f; }; // 디버그용 후진
+	void moveLeft()		{ translation_.x -= 0.1f; }; // 디버그용 좌측 이동
+	void moveRight()    { translation_.x += 0.1f; }; // 디버그용 우측 이동
+	void moveUp()		{ translation_.y += 0.1f; }; // 디버그용 상향 이동
+	void moveDown()		{ translation_.y -= 0.1f; }; // 디버그용 하향 이동
+
 	void Deceleration(float deltaTime);  // 입력 없을 때 감속
 
 	// 충돌 처리

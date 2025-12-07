@@ -58,6 +58,32 @@ void PLAYER::move(const glm::vec3& forward, const glm::vec3& right, int directio
 	velocity_.z = glm::mix(velocity_.z, Velocity.z, acceleration_ * 0.016f);
 }
 
+void PLAYER::moveDebug(int direction) {
+	// 디버그용 이동 함수 (필요시 구현)
+	glm::vec3 movement(0.0f);
+
+	switch (direction) {
+	case 0: // 전방 (W)
+		moveForward();
+		break;
+	case 1: // 좌측 (A)
+		moveLeft();
+		break;
+	case 2: // 후방 (S)
+		moveBackward();
+		break;
+	case 3: // 우측 (D)
+		moveRight();
+		break;
+	case 4: // 상향 (Q)
+		moveUp();
+		break;
+	case 5: // 하향 (E)
+		moveDown();
+		break;
+	}
+}
+
 void PLAYER::Deceleration(float deltaTime) {
 	if (isFlying_) {
 		return; // 화살표 모드에서는 감속 무시 (등속 운동)

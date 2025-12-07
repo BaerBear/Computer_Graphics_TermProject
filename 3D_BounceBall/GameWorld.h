@@ -54,8 +54,14 @@ public:
 	int getCollectedStars() const { return collectedStars_; }
 	int getTotalStars() const { return totalStars_; }
 
+<<<<<<< Updated upstream
 	// 부서진 블록 복구
 	void resetBreakableBlocks();
+=======
+	// 중력 비활성화 토글
+	void toggleGravity() { activateGravity_ = !activateGravity_; }
+	bool getGravityStatus() const { return activateGravity_; }
+>>>>>>> Stashed changes
 
 private:
 	GLuint shaderProgramID_;
@@ -73,6 +79,7 @@ private:
 	int score_;
 	bool showTrajectory_;
 	bool ThirdPersonView_;
+	bool activateGravity_;
 
 	GLuint titleTextureID_;
 

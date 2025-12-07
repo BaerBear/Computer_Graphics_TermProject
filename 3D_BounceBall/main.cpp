@@ -47,6 +47,8 @@ GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 GLvoid KeyBoardDown(unsigned char key, int x, int y);
 GLvoid KeyBoardUp(unsigned char key, int x, int y);
+GLvoid SpecialKey(int key, int x, int y);
+GLvoid SpecialKeyUp(int key, int x, int y);
 GLvoid Mouse(int button, int state, int x, int y);
 GLvoid Move(int x, int y);
 GLvoid Idle();
@@ -151,6 +153,8 @@ void main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(KeyBoardDown);
 	glutKeyboardUpFunc(KeyBoardUp);
+	glutSpecialFunc(SpecialKey);        // 스페셜 키 추가
+	glutSpecialUpFunc(SpecialKeyUp);    // 스페셜 키 Up 추가
 	glutMouseFunc(Mouse);
 	glutMotionFunc(Move);
 	glutIdleFunc(Idle);
@@ -351,6 +355,21 @@ GLvoid KeyBoardUp(unsigned char key, int x, int y)
 {
 	if (inputHandler) {
 		inputHandler->handleKeyboardUp(key, x, y);
+	}
+	glutPostRedisplay();
+}
+
+// 스페셜 키 콜백 함수 구현 (main.cpp 하단에 추가)
+GLvoid SpecialKey(int key, int x, int y) {
+	if (inputHandler) {
+		inputHandler->handleSpecialKey(key, x, y);
+	}
+	glutPostRedisplay();
+}
+
+GLvoid SpecialKeyUp(int key, int x, int y) {
+	if (inputHandler) {
+		inputHandler->handleSpecialKeyUp(key, x, y);
 	}
 	glutPostRedisplay();
 }

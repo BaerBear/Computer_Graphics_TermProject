@@ -73,6 +73,34 @@ void InputHandler::handleKeyboardUp(unsigned char key, int x, int y)
 	keysPressed_[key] = false;
 }
 
+void InputHandler::handleSpecialKey(int key, int x, int y)
+{
+	if (!gameWorld_)
+		return;
+
+	GameState state = gameWorld_->getGameState();
+
+	// 타이틀 화면에서는 스페셜 키 무시
+	if (state == GameState::TITLE)
+		return;
+
+	// 스페셜 키 누름 상태 저장
+	if (key < 256) {
+		specialKeysPressed_[key] = true;
+	}
+
+	handleCameraSpecialKeys(key);
+	handleGameSpecialKeys(key);
+}
+
+void InputHandler::handleSpecialKeyUp(int key, int x, int y)
+{
+	// 스페셜 키 해제
+	if (key < 256) {
+		specialKeysPressed_[key] = false;
+	}
+}
+
 void InputHandler::updateKeyStates()
 {
 	// 매 프레임 호출 - 플레이어 이동 입력 처리
@@ -88,23 +116,52 @@ void InputHandler::updateKeyStates()
 		return;
 
 	bool isMoving = false;
+	bool isGravityactivated = gameWorld_->getGravityStatus();
 
 	// W/A/S/D 키 상태 확인
-	if (keysPressed_['w'] || keysPressed_['W']) {
-		player->move(camera_->getForward(), camera_->getRight(), 0, playerMoveSpeed_);
-		isMoving = true;
+	if (isGravityactivated) {
+		if (keysPressed_['w'] || keysPressed_['W']) {
+			player->move(camera_->getForward(), camera_->getRight(), 0, playerMoveSpeed_);
+			isMoving = true;
+		}
+		if (keysPressed_['a'] || keysPressed_['A']) {
+			player->move(camera_->getForward(), camera_->getRight(), 1, playerMoveSpeed_);
+			isMoving = true;
+		}
+		if (keysPressed_['s'] || keysPressed_['S']) {
+			player->move(camera_->getForward(), camera_->getRight(), 2, playerMoveSpeed_);
+			isMoving = true;
+		}
+		if (keysPressed_['d'] || keysPressed_['D']) {
+			player->move(camera_->getForward(), camera_->getRight(), 3, playerMoveSpeed_);
+			isMoving = true;
+		}
 	}
-	if (keysPressed_['a'] || keysPressed_['A']) {
-		player->move(camera_->getForward(), camera_->getRight(), 1, playerMoveSpeed_);
-		isMoving = true;
-	}
-	if (keysPressed_['s'] || keysPressed_['S']) {
-		player->move(camera_->getForward(), camera_->getRight(), 2, playerMoveSpeed_);
-		isMoving = true;
-	}
-	if (keysPressed_['d'] || keysPressed_['D']) {
-		player->move(camera_->getForward(), camera_->getRight(), 3, playerMoveSpeed_);
-		isMoving = true;
+	else {
+		if (specialKeysPressed_[GLUT_KEY_UP]) {
+			player->moveDebug(0);
+			isMoving = true;
+		}
+		if (specialKeysPressed_[GLUT_KEY_LEFT]) {
+			player->moveDebug(1);
+			isMoving = true;
+		}
+		if (specialKeysPressed_[GLUT_KEY_DOWN]) {
+			player->moveDebug(2);
+			isMoving = true;
+		}
+		if (specialKeysPressed_[GLUT_KEY_RIGHT]) {
+			player->moveDebug(3);
+			isMoving = true;
+		}
+		if (specialKeysPressed_[GLUT_KEY_CTRL_L]) {
+			player->moveUp();
+			isMoving = true;
+		}
+		if (specialKeysPressed_[GLUT_KEY_SHIFT_L]) {
+			player->moveDown();
+			isMoving = true;
+		}
 	}
 
 	if (!isMoving) {
@@ -238,5 +295,62 @@ void InputHandler::handleTrajectoryKeys(unsigned char key)
 		gameWorld_->toggleTrajectory();
 		std::cout << "Trajectory: " << (gameWorld_->isTrajectoryVisible() ? "ON" : "OFF") << std::endl;
 		break;
+	}
+}
+
+void InputHandler::handleCameraSpecialKeys(int key)
+{
+	if (!camera_)
+		return;
+
+	switch (key)
+	{
+	case GLUT_KEY_F1:
+		// 중력 비활성화 토글
+	{
+		gameWorld_->toggleGravity();
+
+	}
+	break;
+
+	case GLUT_KEY_PAGE_DOWN:
+	{
+		// FOV 감소
+		/*bool isThirdPerson = gameWorld_->getThirdPersonView();
+		if (isThirdPerson) {
+			float currentRoll = camera_->getRoll();
+			currentRoll += glm::radians(5.0f);
+			if (currentRoll > glm::radians(120.0f)) currentRoll = glm::radians(120.0f);
+			camera_->setRoll(currentRoll);
+			std::cout << "FOV: " << glm::degrees(currentRoll) << " degrees" << std::endl;
+		}
+		else break;*/
+	}
+	break;
+
+	case GLUT_KEY_PAGE_UP:
+	{
+		// FOV 증가
+		/*bool isThirdPerson = gameWorld_->getThirdPersonView();
+		if (isThirdPerson) {
+			float currentRoll = camera_->getRoll();
+			currentRoll -= glm::radians(5.0f);
+			if (currentRoll < glm::radians(20.0f)) currentRoll = glm::radians(20.0f);
+			camera_->setRoll(currentRoll);
+			std::cout << "FOV: " << glm::degrees(currentRoll) << " degrees" << std::endl;
+		}
+		else break;*/
+	}
+	break;
+	}
+}
+
+void InputHandler::handleGameSpecialKeys(int key)
+{
+	if (!gameWorld_)
+		return;
+	switch (key)
+	{
+
 	}
 }
