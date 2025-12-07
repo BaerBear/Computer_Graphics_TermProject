@@ -306,8 +306,7 @@ GLvoid drawScene()
 		glm::vec3 playerPos = gameWorld->getPlayer()->getTranslation();
 		camera->setTarget(playerPos);
 		camera->setTargetScale(gameWorld->getPlayer()->getScaleFactor());
-		float dis = glm::length(camera->getPosition() - camera->getTarget());
-		camera->orbitAroundTarget(dis, cameraYaw, cameraPitch, ThirdPersonView);
+		camera->orbitAroundTarget(5.0f, cameraYaw, cameraPitch, ThirdPersonView);
 	}
 
 	// View 매트릭스 가져오기
