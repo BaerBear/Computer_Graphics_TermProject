@@ -100,6 +100,7 @@ void GameWorld::update(float deltaTime)
 	if (player_.getTranslation().y < -15.0f)
 	{
 		std::cout << "Game Over! Restarting..." << std::endl;
+		PlaySound(L"sounds\\dead.wav", NULL, SND_FILENAME | SND_ASYNC);
 		reset();
 	}
 }
@@ -174,6 +175,7 @@ void GameWorld::checkCollisions()
 	// 가시 블럭
 	for (auto block : spikeBlocks_) {
 		if (player_.checkCollision(block)) {
+			PlaySound(L"sounds\\dead.wav", NULL, SND_FILENAME | SND_ASYNC);
 			player_.onCollision(block); // 닿으면 사망(Reset)
 			reset();
 		}
