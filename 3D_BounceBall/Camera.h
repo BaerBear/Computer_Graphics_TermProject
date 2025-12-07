@@ -1,5 +1,6 @@
 #pragma once
 #include "Headers.h"
+#include "Player.h"
 
 class Camera
 {
@@ -15,14 +16,16 @@ public:
 	void setPitch(float pitch) { pitch_ = pitch; }
 	void setRoll(float roll) { roll_ = roll; }
 
+	void setEye(const glm::vec3& eye) { position_ = eye; }
+
 	// 카메라 방향 벡터 계산
 	glm::vec3 getForward() const;
 	glm::vec3 getRight() const;
 	glm::vec3 getUp() const;
+	
+	glm::mat4 getViewMatrix(bool thirdPersonView = true) const;
 
-	glm::mat4 getViewMatrix() const;
-
-	void orbitAroundTarget(float distance, float yaw, float pitch);
+	void orbitAroundTarget(float distance, float yaw, float pitch, bool thirdPersonView);
 
 	// Getter
 	glm::vec3 getPosition() const { return position_; }
@@ -30,7 +33,8 @@ public:
 	float getYaw() const { return yaw_; }
 	float getPitch() const { return pitch_; }
 	float getRoll() const { return roll_; }
-	float getMaxPitch() const { return maxPitch_; }
+	float getMaxPitch_3rd() const { return maxPitch_; }
+	float getMaxPitch_1st() const { return maxPitchFirstPerson_; }
 
 private:
 	glm::vec3 position_;
@@ -41,4 +45,5 @@ private:
 	float distance_; // 타겟과의 거리
 	float playerScale_; // 플레이어 스케일 팩터
 	float maxPitch_ = glm::radians(30.0f);
+	float maxPitchFirstPerson_ = glm::radians(89.0f);  // 1인칭 최대 피치
 };

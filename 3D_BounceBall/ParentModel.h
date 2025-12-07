@@ -25,7 +25,7 @@ public:
 	glm::mat4 createModelMatrix();
 	void init(const char* filename, GLuint shaderProgramID,  float r, float g, float b);
 	void draw();
-	void reset();
+	virtual void reset();
 
 	// 바운딩 정보
 	virtual glm::vec3 getPosition() const { return translation_; }

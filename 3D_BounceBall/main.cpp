@@ -119,7 +119,7 @@ void main(int argc, char** argv)
 	cameraYaw = camera->getYaw();
 	cameraPitch = camera->getPitch();
 	float dis = glm::length(camera->getPosition() - camera->getTarget());
-	camera->orbitAroundTarget(dis, camera->getYaw(), camera->getPitch());
+	camera->orbitAroundTarget(dis, cameraYaw, cameraPitch, true);
 
 	// GameWorld 생성
 	gameWorld = new GameWorld(shaderProgramID);
@@ -300,16 +300,21 @@ GLvoid drawScene()
 	GLint viewLoc = glGetUniformLocation(shaderProgramID, "view");
 	GLint projLoc = glGetUniformLocation(shaderProgramID, "proj");
 
+
+	bool ThirdPersonView = gameWorld->getThirdPersonView();
 	if (gameWorld && camera) {
 		glm::vec3 playerPos = gameWorld->getPlayer()->getTranslation();
 		camera->setTarget(playerPos);
 		camera->setTargetScale(gameWorld->getPlayer()->getScaleFactor());
 		float dis = glm::length(camera->getPosition() - camera->getTarget());
-		camera->orbitAroundTarget(dis, cameraYaw, cameraPitch);
+		camera->orbitAroundTarget(dis, cameraYaw, cameraPitch, ThirdPersonView);
 	}
 
 	// View 매트릭스 가져오기
-	glm::mat4 view = camera->getViewMatrix();
+	if (!ThirdPersonView) {
+		camera->setPosition(gameWorld->getPlayer()->getEyePosition());
+	}
+	glm::mat4 view = camera->getViewMatrix(ThirdPersonView);
 	glm::mat4 proj = glm::perspective(camera->getRoll(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -377,7 +382,13 @@ GLvoid Move(int x, int y) {
 		cameraYaw += deltaX * mouseSensitivity;
 		cameraPitch -= deltaY * mouseSensitivity;
 
-		const float maxPitch = camera->getMaxPitch();
+		float maxPitch = 0.0f;
+		if (gameWorld->getThirdPersonView()) {
+			maxPitch = camera->getMaxPitch_3rd();
+		}
+		else {
+			maxPitch = camera->getMaxPitch_1st();
+		}
 		if (cameraPitch > maxPitch) cameraPitch = maxPitch;
 		if (cameraPitch < -maxPitch) cameraPitch = -maxPitch;
 	}

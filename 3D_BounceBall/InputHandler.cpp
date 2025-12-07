@@ -176,6 +176,27 @@ void InputHandler::handleGameKeys(unsigned char key)
 
 	switch (key)
 	{
+	case 'v':
+	case 'V': {
+		bool wasThirdPerson = gameWorld_->getThirdPersonView();
+		gameWorld_->toggleThirdPersonView();
+		bool isThirdPerson = gameWorld_->getThirdPersonView();
+
+		// 3인칭으로 돌아갈 때 pitch를 제한 범위 내로 조정
+		if (isThirdPerson && camera_) {
+			float currentPitch = camera_->getPitch();
+			float maxPitch = camera_->getMaxPitch_3rd();
+
+			if (currentPitch > maxPitch) {
+				camera_->setPitch(maxPitch);
+			}
+			else if (currentPitch < -maxPitch) {
+				camera_->setPitch(-maxPitch);
+			}
+		}
+		std::cout << "Camera View: " << (gameWorld_->getThirdPersonView() ? "Third Person" : "First Person") << std::endl;
+		break;
+	}
 	case 'c':
 	case 'C':
 		gameWorld_->setGameStarted(!gameWorld_->isGameStarted());

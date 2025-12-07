@@ -103,7 +103,7 @@ void GameWorld::update(float deltaTime)
 
 void GameWorld::draw()
 {
-	player_.draw();
+	if(ThirdPersonView_) player_.draw();
 
 	// 궤적 표시가 활성화된 경우에만 그리기
 	if (showTrajectory_) {
@@ -164,6 +164,7 @@ void GameWorld::checkCollisions()
 	for (auto block : spikeBlocks_) {
 		if (player_.checkCollision(block)) {
 			player_.onCollision(block); // 닿으면 사망(Reset)
+			reset();
 		}
 	}
 

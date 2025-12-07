@@ -11,6 +11,14 @@ void PLAYER::update(float deltaTime) {
 	}
 }
 
+void PLAYER::reset() {
+	translation_ = glm::vec3(0.0f, 0.0f, 0.0f);
+	rotation_ = glm::vec3(0.0f, 0.0f, 0.0f);
+	orbitRotation_ = glm::vec3(0.0f, 0.0f, 0.0f);
+	selfscale_ = glm::vec3(1.0f, 1.0f, 1.0f);
+	scale_ = glm::vec3(1.0f, 1.0f, 1.0f);
+}
+
 void PLAYER::move(const glm::vec3& forward, const glm::vec3& right, int direction, float speed) {
 	if (isFlying_) {
 		isFlying_ = false; // 화살표 모드에서는 이동 무시

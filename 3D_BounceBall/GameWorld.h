@@ -24,6 +24,10 @@ public:
 	// 플레이어 접근
 	PLAYER* getPlayer() { return &player_; }
 
+	// 3인칭/1인칭 뷰 토글
+	bool getThirdPersonView() const { return ThirdPersonView_; }
+	void toggleThirdPersonView() { ThirdPersonView_ = !ThirdPersonView_; }
+
 	// 블럭 추가/제거
 	void addBlock(BLOCK* block);
 	void addBounceBlock(BOUNCE_BLOCK* block);
@@ -56,6 +60,7 @@ private:
 	bool gameStarted_;
 	int score_;
 	bool showTrajectory_ = false;
+	bool ThirdPersonView_ = true;
 
 	void createFloorBlocks();
 	void createBounceBlocks();

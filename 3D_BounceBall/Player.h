@@ -22,6 +22,9 @@ public:
 	float getScaleFactor() const {			 // 스케일 팩터 게터
 		return scaleFactor_;
 	}
+	glm::vec3 getEyePosition() const {    // 카메라 시점 위치 계산기
+		return translation_ + glm::vec3(0.0f, radius_, 0.0f);
+	}
 
 	void setVelocity(const glm::vec3& vel) { // 속도 세터
 		velocity_ = vel;
@@ -37,6 +40,7 @@ public:
 
 	// 충돌 처리
 	void onCollision(ParentModel* other) override;
+	void reset() override;
 
 	CollisionType getCollisionType() const override {
 		return CollisionType::NONE;
