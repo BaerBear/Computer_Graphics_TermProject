@@ -45,6 +45,8 @@ bool GameWorld::loadTitleTexture(const char* filepath)
 	glGenTextures(1, &titleTextureID_);
 	glBindTexture(GL_TEXTURE_2D, titleTextureID_);
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 	GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
@@ -110,6 +112,7 @@ void GameWorld::drawTitleScreen()
 	// 이미지 그리기
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
+
 	// 왼쪽 아래
 	glTexCoord2f(texLeft, texBottom);
 	glVertex2f(imageX, imageY);
