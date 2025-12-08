@@ -184,15 +184,15 @@ void InputHandler::handleRenderingKeys(unsigned char key)
 		std::cout << "Depth Test: " << (*depthTest_ ? "Enabled" : "Disabled") << std::endl;
 		break;
 
-	case 'u':
+	/*case 'u':
 	case 'U':
 		*cullFace_ = !(*cullFace_);
 		std::cout << "Cull Face: " << (*cullFace_ ? "Enabled" : "Disabled") << std::endl;
-		break;
+		break;*/
 
 	/*case 'p':
 		*projectionPerspective_ = false;
-		std::cout << "Orthographic Projection" << std::endl;
+		std::cout << "Orthographic Projection" << std::endl;`
 		break;
 
 	case 'P':
@@ -200,7 +200,7 @@ void InputHandler::handleRenderingKeys(unsigned char key)
 		std::cout << "Perspective Projection" << std::endl;
 		break;*/
 
-	case 'm':
+	/*case 'm':
 		*drawSolid_ = true;
 		*drawWireframe_ = false;
 		std::cout << "Draw Solid Mode" << std::endl;
@@ -210,7 +210,7 @@ void InputHandler::handleRenderingKeys(unsigned char key)
 		*drawSolid_ = false;
 		*drawWireframe_ = true;
 		std::cout << "Draw Wireframe Mode" << std::endl;
-		break;
+		break;*/
 	}
 }
 
