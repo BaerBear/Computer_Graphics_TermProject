@@ -69,6 +69,6 @@ public:
 	}
 
 	float getRadius() const override {
-		return 0.3f;  // 별 크기에 맞게 조정
+		return 0.6f;  // 별 크기에 맞게 조정
 	}
 };

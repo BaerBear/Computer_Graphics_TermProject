@@ -190,7 +190,7 @@ void InputHandler::handleRenderingKeys(unsigned char key)
 		std::cout << "Cull Face: " << (*cullFace_ ? "Enabled" : "Disabled") << std::endl;
 		break;
 
-	case 'p':
+	/*case 'p':
 		*projectionPerspective_ = false;
 		std::cout << "Orthographic Projection" << std::endl;
 		break;
@@ -198,7 +198,7 @@ void InputHandler::handleRenderingKeys(unsigned char key)
 	case 'P':
 		*projectionPerspective_ = true;
 		std::cout << "Perspective Projection" << std::endl;
-		break;
+		break;*/
 
 	case 'm':
 		*drawSolid_ = true;
@@ -277,7 +277,7 @@ void InputHandler::handleGameKeys(unsigned char key)
 
 	case 'x':
 	case 'X':
-		gameWorld_->reset();
+		gameWorld_->reset(true);
 		std::cout << "Game Reset! Score: " << gameWorld_->getScore() << std::endl;
 		break;
 	}
@@ -309,7 +309,16 @@ void InputHandler::handleCameraSpecialKeys(int key)
 		// 중력 비활성화 토글
 	{
 		gameWorld_->toggleGravity();
-
+		if (gameWorld_->getGravityStatus()) {
+			std::cout << "Gravity Activated" << std::endl;
+		}
+		else {
+			std::cout << "\n=== Debug Mode Controls ===" << std::endl;
+			std::cout << "←/↑/→/↓: Left / Forward / Right / Backward" << std::endl;
+			std::cout << "Left Ctrl: Move Up" << std::endl;
+			std::cout << "Left Shift: Move Down" << std::endl;
+			std::cout << "================\n" << std::endl;
+		}
 	}
 	break;
 
@@ -351,6 +360,6 @@ void InputHandler::handleGameSpecialKeys(int key)
 		return;
 	switch (key)
 	{
-
+	default: break;
 	}
 }

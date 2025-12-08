@@ -35,7 +35,7 @@ bool DrawSolid = true;
 bool DrawWireframe = false;
 bool useTexture = false;
 
-float bgR = 0.f, bgG = 0.f, bgB = 0.f;
+float bgR = 0.6f, bgG = 0.6f, bgB = 0.6f;
 
 GLfloat transformx(int x) { return ((float)x / (WINDOW_WIDTH / 2)) - 1.0f; }
 GLfloat transformy(int y) { return ((WINDOW_HEIGHT - (float)y) / (WINDOW_HEIGHT / 2)) - 1.0f; }
@@ -60,7 +60,7 @@ GLuint fragmentShader;
 
 // 조명 설정
 bool turnOnLight = true;
-glm::vec3 lightPos = glm::vec3(10.0f, 1.0f, 20.0f);
+glm::vec3 lightPos = glm::vec3(-50.0f, 100.0f, -70.0f);
 glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 float lightIntensity = 0.5f;
 
@@ -137,12 +137,10 @@ void main(int argc, char** argv)
 
 	std::cout << "\n=== Controls ===" << std::endl;
 	std::cout << "W/A/S/D: Move player" << std::endl;
-	std::cout << "Space: Jump" << std::endl;
 	std::cout << "C: Start/Pause game" << std::endl;
 	std::cout << "X: Reset game" << std::endl;
+	std::cout << "V: Toggle 1st/3rd Person View" << std::endl;
 	std::cout << "H: Toggle Depth Test" << std::endl;
-	std::cout << "U: Toggle Cull Face" << std::endl;
-	std::cout << "P/p: Perspective/Orthographic Projection" << std::endl;
 	std::cout << "R: Toggle Lighting" << std::endl;
 	std::cout << "+/-: Adjust Light Intensity" << std::endl;
 	std::cout << "T: Trace Path" << std::endl;

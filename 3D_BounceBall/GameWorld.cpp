@@ -199,12 +199,15 @@ void GameWorld::cleanup()
 	stars_.clear();
 }
 
-void GameWorld::reset()
+void GameWorld::reset(bool inputX)
 {
 	cleanup();
 
 	// 플레이어를 마지막 세이브 포인트에서 리셋
 	player_.reset();
+	if (inputX) {
+		spawnPoint_ = glm::vec3(0.0f, 2.0f, 0.0f);  // X 키 입력 시 초기 위치로 리셋
+	}
 	player_.setTranslation(spawnPoint_);  // 세이브 포인트로 이동
 	player_.setSelfScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	player_.radius_ = 0.5f * player_.getScaleFactor();
@@ -232,7 +235,7 @@ void GameWorld::update(float deltaTime)
 	if (gameState_ != GameState::PLAYING) return;
 	if (!gameStarted_) return;
 
-	if(activateGravity_) player_.update(deltaTime);
+	if (activateGravity_) player_.update(deltaTime);
 
 	// 별 회전 애니메이션
 	for (auto star : stars_) {
@@ -582,7 +585,7 @@ void GameWorld::createFloorBlocks()
 	// 6-2. 가시 후 안전 발판 - 바운스로 변경
 	BOUNCE_BLOCK* spikeExit = new BOUNCE_BLOCK();
 	spikeExit->init("obj/uv_cube.obj", shaderProgramID_, 0.5f, 0.5f, 0.5f);
-	spikeExit->loadTexture("img/default.png");	
+	spikeExit->loadTexture("img/default.png");
 	spikeExit->setTranslation(glm::vec3(0.0f, 7.0f, -115.0f));
 	spikeExit->setSelfScale(glm::vec3(1.0f, 1.0f, 1.0f));
 	blocks_.push_back(spikeExit);

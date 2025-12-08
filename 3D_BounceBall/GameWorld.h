@@ -19,7 +19,7 @@ public:
 
 	void initialize();
 	void cleanup();
-	void reset();
+	void reset(bool inputX = false);
 
 	void update(float deltaTime);
 	void draw();
