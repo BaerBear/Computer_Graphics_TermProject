@@ -8,7 +8,7 @@
 
 GameWorld::GameWorld(GLuint shaderID)
 	: shaderProgramID_(shaderID)
-	, gameState_(GameState::ENDING)
+	, gameState_(GameState::TITLE)
 	, gameStarted_(false)
 	, score_(0)
 	, titleTextureID_(0)
