@@ -326,7 +326,7 @@ GLvoid drawScene()
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "modelMat");
 	glm::mat4 axisModel = glm::mat4(1.0f);
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(axisModel));
-	Axis.Draw();
+	// Axis.Draw();
 
 	// GameWorld ±×¸®±â
 	if (gameWorld) {

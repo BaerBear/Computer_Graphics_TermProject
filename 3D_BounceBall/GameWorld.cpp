@@ -8,10 +8,11 @@
 
 GameWorld::GameWorld(GLuint shaderID)
 	: shaderProgramID_(shaderID)
-	, gameState_(GameState::TITLE)
+	, gameState_(GameState::ENDING)
 	, gameStarted_(false)
 	, score_(0)
 	, titleTextureID_(0)
+	, endingTextureID_(0)
 	, collectedStars_(0)
 	, totalStars_(0)
 	, spawnPoint_(0.0f, 2.0f, 0.0f)  // 초기 스폰 위치
@@ -26,6 +27,10 @@ GameWorld::~GameWorld()
 	// 타이틀 텍스처 정리
 	if (titleTextureID_ != 0) {
 		glDeleteTextures(1, &titleTextureID_);
+	}
+
+	if (endingTextureID_ != 0) {
+		glDeleteTextures(1, &endingTextureID_);
 	}
 }
 
@@ -44,6 +49,35 @@ bool GameWorld::loadTitleTexture(const char* filepath)
 
 	glGenTextures(1, &titleTextureID_);
 	glBindTexture(GL_TEXTURE_2D, titleTextureID_);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return true;
+}
+
+bool GameWorld::loadEndingTexture(const char* filepath)
+{
+	int width, height, channels;
+	unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
+
+	if (!data) {
+		std::cerr << "Failed to load ending image: " << filepath << std::endl;
+		return false;
+	}
+
+	glGenTextures(1, &endingTextureID_);
+	glBindTexture(GL_TEXTURE_2D, endingTextureID_);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -133,12 +167,12 @@ void GameWorld::drawTitleScreen()
 	glDisable(GL_TEXTURE_2D);
 
 	// 텍스트
-	glColor3f(1.0f, 1.0f, 0.0f);
-	glRasterPos2f(windowWidth / 2.0f - 100.0f, 50.0f);
-	std::string text = "Press Any Key to Start";
-	for (char c : text) {
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-	}
+	//glColor3f(1.0f, 1.0f, 0.0f);
+	//glRasterPos2f(windowWidth / 2.0f - 100.0f, 50.0f);
+	//std::string text = "Press Any Key to Start";
+	//for (char c : text) {
+	//	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+	//}
 
 	// 원래 상태로 복원
 	glPopMatrix();
@@ -148,6 +182,57 @@ void GameWorld::drawTitleScreen()
 
 	glEnable(GL_DEPTH_TEST);
 }
+
+void GameWorld::drawEndingScreen()
+{
+	if (endingTextureID_ == 0) return;
+
+	glUseProgram(0);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_CULL_FACE);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, glutGet(GLUT_WINDOW_WIDTH), 0, glutGet(GLUT_WINDOW_HEIGHT));
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	// 전체 화면 꽉 차게 그리기
+	float windowWidth = (float)glutGet(GLUT_WINDOW_WIDTH);
+	float windowHeight = (float)glutGet(GLUT_WINDOW_HEIGHT);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, endingTextureID_); // <--- 엔딩 텍스처 바인딩
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 0.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f(windowWidth, 0.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f(windowWidth, windowHeight);
+	glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, windowHeight);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	// 축하 메시지 출력
+	glColor3f(1.0f, 1.0f, 0.0f);
+	glRasterPos2f(windowWidth / 2.0f - 170.0f, 50.0f);
+	std::string text = "2025 Computer Graphics Term Progect!";
+	for (char c : text) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+	}
+
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_DEPTH_TEST);
+}
+
 void GameWorld::startGame()
 {
 	gameState_ = GameState::PLAYING;
@@ -160,6 +245,7 @@ void GameWorld::initialize()
 	std::cout << "Initializing GameWorld..." << std::endl;
 
 	loadTitleTexture("img/title.jpg");
+	loadEndingTexture("img/clear.jpg");
 
 	// 플레이어 초기화
 	player_.init("obj/uv_sphere.obj", shaderProgramID_, 1.0f, 1.0f, 0.0f);
@@ -268,6 +354,11 @@ void GameWorld::draw()
 	// 타이틀 화면이면 타이틀만 그리기
 	if (gameState_ == GameState::TITLE) {
 		drawTitleScreen();
+		return;
+	}
+
+	if (gameState_ == GameState::ENDING) {
+		drawEndingScreen();
 		return;
 	}
 
@@ -434,6 +525,13 @@ void GameWorld::checkCollisions()
 				PlaySound(L"sounds\\star.wav", NULL, SND_FILENAME | SND_ASYNC);
 				addScore(50);
 				collectedStars_++;  // 별 개수 증가
+
+				if (collectedStars_ >= totalStars_) {
+					std::cout << "All stars collected! You win!" << std::endl;
+					gameState_ = GameState::ENDING;
+
+					PlaySound(L"sounds\\clear.wav", NULL, SND_FILENAME | SND_ASYNC);
+				}
 
 				// 세이브 포인트 업데이트 (별 위치로)
 				spawnPoint_ = star->getPosition();

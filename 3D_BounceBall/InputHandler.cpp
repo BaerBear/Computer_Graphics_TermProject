@@ -50,7 +50,7 @@ void InputHandler::handleKeyboard(unsigned char key, int x, int y)
 	GameState state = gameWorld_->getGameState();
 
 	// 타이틀 화면: 아무 키나 누르면 게임 시작
-	if (state == GameState::TITLE) {
+	if (state == GameState::TITLE && key == ' ') {
 		gameWorld_->startGame();
 		return;
 	}

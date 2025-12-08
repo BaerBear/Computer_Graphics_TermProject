@@ -79,6 +79,7 @@ private:
 	bool activateGravity_;
 
 	GLuint titleTextureID_;
+	GLuint endingTextureID_;
 
 	// 별 개수 추적
 	int collectedStars_;
@@ -95,7 +96,9 @@ private:
 	void createStars();
 
 	bool loadTitleTexture(const char* filepath);
+	bool loadEndingTexture(const char* filepath);
 	void drawTitleScreen();
+	void drawEndingScreen();
 
 	TrajectoryPredictor trajectoryPredictor_;
 };
